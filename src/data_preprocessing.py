@@ -62,7 +62,7 @@ def clean_data(df):
     cleaning_log.append(f"扫描速度>{CLEANING_RULES['scan_speed_max']}mm/s: 剔除{n}行")
     df_clean = df_clean[~mask]
 
-    # 规则3: 元素总含量 (7元素之和) 在 95~105% 区间外
+    # 规则3: 元素总含量 (7元素之和) 在 85~115% 区间外
     elem_sum = df_clean[COMPOSITION_FEATURES].sum(axis=1)
     mask = (elem_sum < CLEANING_RULES["elem_sum_min"]) | \
            (elem_sum > CLEANING_RULES["elem_sum_max"])
