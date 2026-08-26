@@ -756,7 +756,10 @@ def plot_shap_bubble_hardness(data):
 
     merged = shap_base[["特征名", target_col]].rename(
         columns={target_col: "Baseline"})
-    merged["Few-shot"] = shap_fs[target_col].values
+    merged = merged.merge(
+        shap_fs[["特征名", target_col]].rename(columns={target_col: "Few-shot"}),
+        on="特征名", how="inner",
+    )
     merged = merged.sort_values("Baseline", ascending=True)
     merged["特征名"] = merged["特征名"].map(FEATURE_CN_TO_ABBR)
 
@@ -801,7 +804,10 @@ def plot_shap_bubble_corrosion(data):
 
     merged = shap_base[["特征名", target_col]].rename(
         columns={target_col: "Baseline"})
-    merged["Few-shot"] = shap_fs[target_col].values
+    merged = merged.merge(
+        shap_fs[["特征名", target_col]].rename(columns={target_col: "Few-shot"}),
+        on="特征名", how="inner",
+    )
     merged = merged.sort_values("Baseline", ascending=True)
     merged["特征名"] = merged["特征名"].map(FEATURE_CN_TO_ABBR)
 
