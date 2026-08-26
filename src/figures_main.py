@@ -16,6 +16,7 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Rectangle
 
 # 导入统一样式
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -159,7 +160,7 @@ def plot_correlation_heatmap(data):
 
     cmap = LinearSegmentedColormap.from_list(
         "paper_diverging",
-        ["#728BDE", "#E5F2FB", "#FFFFFF", "#F8F9E4", "#E97A6F"],
+        ["#728BDE", "#F8F1F1", "#E85345"],
         N=256)
 
     fig, ax = plt.subplots(figsize=FIG_SIZE_HEATMAP)
@@ -173,9 +174,9 @@ def plot_correlation_heatmap(data):
     for i in range(len(cols)):
         for j in range(len(cols)):
             val = corr.values[i, j]
-            color = "white" if abs(val) > 0.5 else DARK
+            color = "white" if abs(val) > 0.65 else "black"
             ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                    fontsize=FONT_SIZE_ANNOT_HEAT, color=color,
+                    fontsize=9, color=color,
                     fontweight="bold")
 
     from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -402,7 +403,7 @@ def plot_stacked_composition(data):
             y = bars[j].get_y()
             h = bars[j].get_height()
             if h > 0 and not np.isnan(h):
-                ax.add_patch(plt.Rectangle((x, y), w, h, fill=False,
+                ax.add_patch(Rectangle((x, y), w, h, fill=False,
                                            edgecolor="black", linewidth=0.8,
                                            zorder=5))
         for j, v in enumerate(vals):
