@@ -251,7 +251,7 @@ def run_pareto_optimization(df_clean, model_dir=None, output_dir=None):
         pareto_df, samples_df = scan_single_dimension(
             param, hardness_bundle, corrosion_bundle, composition,
             base_seed=42 + param_idx * 10000
-        )
+        )  # type: ignore[misc]
         all_pareto_fronts[param] = pareto_df
         all_samples_list.append(samples_df)
 
