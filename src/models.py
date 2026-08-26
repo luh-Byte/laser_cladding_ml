@@ -18,9 +18,9 @@ def train_knn(X_train, y_train):
     model = KNeighborsRegressor()
     param_grid = HYPERPARAM_GRIDS["KNN"]
     grid = GridSearchCV(
-        model, param_grid, cv=CV_FOLDS, scoring="r2",
+        model, param_grid, cv=CV_FOLDS, scoring="r2",  # type: ignore[arg-type]
         n_jobs=2, return_train_score=True
-    )  # type: ignore[arg-type]
+    )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [KNN] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -32,9 +32,9 @@ def train_svr(X_train, y_train):
     model = SVR()
     param_grid = HYPERPARAM_GRIDS["SVR"]
     grid = GridSearchCV(
-        model, param_grid, cv=CV_FOLDS, scoring="r2",
+        model, param_grid, cv=CV_FOLDS, scoring="r2",  # type: ignore[arg-type]
         n_jobs=2, return_train_score=True
-    )  # type: ignore[arg-type]
+    )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [SVR] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -46,9 +46,9 @@ def train_rf(X_train, y_train):
     model = RandomForestRegressor(random_state=BASE_RANDOM_SEED)
     param_grid = HYPERPARAM_GRIDS["RF"]
     grid = GridSearchCV(
-        model, param_grid, cv=CV_FOLDS, scoring="r2",
+        model, param_grid, cv=CV_FOLDS, scoring="r2",  # type: ignore[arg-type]
         n_jobs=2, return_train_score=True
-    )  # type: ignore[arg-type]
+    )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [RF] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -65,9 +65,9 @@ def train_lightgbm(X_train, y_train):
     )
     param_grid = HYPERPARAM_GRIDS["LightGBM"]
     grid = GridSearchCV(
-        model, param_grid, cv=CV_FOLDS, scoring="r2",
+        model, param_grid, cv=CV_FOLDS, scoring="r2",  # type: ignore[arg-type]
         n_jobs=2, return_train_score=True
-    )  # type: ignore[arg-type]
+    )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [LightGBM] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
