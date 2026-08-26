@@ -136,7 +136,7 @@ def plot_beeswarm(data):
         display_labels = []
         for idx in order:
             cn = feat_names[int(idx)]
-            en = FEATURE_CN_TO_EN.get(cn, cn)
+            en = str(FEATURE_CN_TO_EN.get(cn, cn))
             display_labels.append(FEATURE_EN_TO_ABBR.get(en, en))
         ax.set_yticks(range(n_features))
         ax.set_yticklabels(display_labels)
