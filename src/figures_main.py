@@ -251,7 +251,8 @@ def plot_model_comparison_bar(data):
     ax.set_xticks(x)
     ax.set_xticklabels(models, fontsize=FONT_SIZE_TICK)
     ax.set_ylabel("R²", fontsize=FONT_SIZE_LABEL)
-    ax.legend(fontsize=FONT_SIZE_LEGEND, loc="upper left", frameon=False)
+    ax.legend(fontsize=FONT_SIZE_LEGEND, loc="upper left",
+              bbox_to_anchor=(0, 1.08), frameon=False)
 
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
