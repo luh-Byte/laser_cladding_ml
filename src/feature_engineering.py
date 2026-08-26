@@ -77,7 +77,7 @@ def filter_correlated_features(X_train, feature_names, threshold=CORRELATION_THR
         for j in range(i + 1, n):
             if feature_names[j] in to_drop:
                 continue
-            r = float(corr_matrix.iloc[i, j])
+            r = float(corr_matrix.iloc[i, j])  # type: ignore[arg-type]
             if abs(r) > threshold:
                 # 保留前者，剔除后者
                 to_drop.add(feature_names[j])
@@ -160,8 +160,8 @@ class CorrosionTargetTransformer:
         """y_train_log: log10(I * 10000) 数组"""
         y_train_log = np.asarray(y_train_log).reshape(-1, 1)
         self.scaler.fit(y_train_log)
-        self.mean_ = self.scaler.mean_[0]
-        self.std_ = self.scaler.scale_[0]
+        self.mean_ = self.scaler.mean_[0]  # type: ignore[union-attr]
+        self.std_ = self.scaler.scale_[0]  # type: ignore[union-attr]
         return self
 
     def transform(self, y_log):
