@@ -100,7 +100,7 @@ def run_loo_fewshot(fewshot_weight=20):
     # 用基础数据训练基线RF模型（与fewshot同特征管道，保证公平对比）
     df_empty_fs = df_fewshot_all.iloc[0:0].copy()  # 空的fewshot表，仅用于管道复用
     X_base_all, y_h_base_all, y_c_base_all, sw_base_all, scaler_base, sel_feat_base, all_feat_base = \
-        build_training_data(df_base, df_empty_fs, fewshot_weight=1)
+        build_training_data(df_base, df_empty_fs, fewshot_weight=1)  # type: ignore[misc]
 
     # 训练基线RF硬度模型
     from sklearn.ensemble import RandomForestRegressor
@@ -169,7 +169,7 @@ def run_loo_fewshot(fewshot_weight=20):
         # 构建训练数据
         X_train, y_h_train, y_c_train, sw_train, scaler, sel_feat, all_feat = build_training_data(
             df_base, df_fewshot_train, fewshot_weight
-        )
+        )  # type: ignore[misc]
 
         n_train_base = len(df_base)
         n_train_fs = len(df_fewshot_train)  # 3
@@ -197,7 +197,7 @@ def run_loo_fewshot(fewshot_weight=20):
 
         # 预测硬度
         hv_pred = h_model.predict(X_test)[0]
-        hv_pred_loo[test_idx] = hv_pred
+        hv_pred_loo[test_idx] = hv_pred  # type: ignore[index]
 
         # 预测腐蚀
         c_pred_z = c_model.predict(X_test)[0]
