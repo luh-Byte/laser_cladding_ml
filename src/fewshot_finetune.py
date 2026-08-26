@@ -145,7 +145,7 @@ def train_fewshot_model(fewshot_weight=20, model_type="lgb", target="hardness",
             random_state=42, n_jobs=-1
         )
 
-    model.fit(X, y, sample_weight=sample_weights)
+    model.fit(X, y, sample_weight=sample_weights)  # type: ignore[arg-type]
     return model
 
 
@@ -170,7 +170,7 @@ def run_fewshot_experiment(fewshot_weight=20):
     # 构建训练数据
     X, y_h, y_c_log, sw, scaler, sel_feat, all_feat = build_training_data(
         df_base, df_fewshot, fewshot_weight
-    )
+    )  # type: ignore[misc]
 
     print(f"[特征] 保留特征数: {len(sel_feat)}")
     print(f"[特征] 列表: {sel_feat}")
@@ -192,14 +192,14 @@ def run_fewshot_experiment(fewshot_weight=20):
     print("-" * 60)
     for i, exp in enumerate(ROCKIT485_EXPERIMENTS):
         actual = exp["硬度"]
-        pred = h_pred_fewshot[i]
+        pred = h_pred_fewshot[i]  # type: ignore[index]
         err = pred - actual
         rel = abs(err) / actual * 100
         print(f"{exp['激光功率']:>8d} {actual:>10.1f} {pred:>10.1f} {err:>+10.1f} {rel:>9.1f}%")
 
     # 判断趋势是否正确
     peak_actual = np.argmax([e["硬度"] for e in ROCKIT485_EXPERIMENTS])
-    peak_pred = np.argmax(h_pred_fewshot)
+    peak_pred = np.argmax(h_pred_fewshot)  # type: ignore[arg-type]
     peak_power_actual = ROCKIT485_EXPERIMENTS[peak_actual]["激光功率"]
     peak_power_pred = ROCKIT485_EXPERIMENTS[peak_pred]["激光功率"]
     trend_correct = peak_actual == peak_pred
@@ -222,7 +222,7 @@ def run_fewshot_experiment(fewshot_weight=20):
 
     c_model = train_fewshot_model(fewshot_weight, "lgb", "corrosion", X, y_c_zscore, sw)
 
-    c_pred_zscore = c_model.predict(X_fewshot)
+    c_pred_zscore = c_model.predict(X_fewshot)  # type: ignore[union-attr]
     c_pred_log = c_pred_zscore * corr_std + corr_mean
     c_pred = np.power(10.0, c_pred_log) / 10000.0
 
