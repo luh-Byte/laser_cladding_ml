@@ -51,16 +51,17 @@ def load_all_data():
     preds = {}
     for model in ["KNN", "SVR", "RF", "LightGBM"]:
         for target in ["硬度", "腐蚀电流"]:
-            fname = f"outputs/results/predictions/pred_{model}_{target}_rep0.csv"
+            fname = os.path.join(OUTPUT_DIR, "results", "predictions",
+                                 f"pred_{model}_{target}_rep0.csv")
             if os.path.exists(fname):
                 preds[f"{model}_{target}"] = pd.read_csv(fname)
 
-    summary = pd.read_excel("outputs/results/model_summary.xlsx")
-    shap_base = pd.read_csv("outputs/shap_baseline/shap_import_baseline.csv")
-    shap_fs = pd.read_csv("outputs/shap_fewshot/shap_import_fewshot.csv")
-    pareto_global = pd.read_csv("outputs/results/pareto_rockit485_fewshot/pareto_global_front.csv")
-    pareto_local = pd.read_csv("outputs/results/pareto_rockit485_local/pareto_local_front.csv")
-    loo = pd.read_csv("outputs/loo_validation/loo_results.csv")
+    summary = pd.read_excel(os.path.join(OUTPUT_DIR, "results", "model_summary.xlsx"))
+    shap_base = pd.read_csv(os.path.join(OUTPUT_DIR, "shap_baseline", "shap_import_baseline.csv"))
+    shap_fs = pd.read_csv(os.path.join(OUTPUT_DIR, "shap_fewshot", "shap_import_fewshot.csv"))
+    pareto_global = pd.read_csv(os.path.join(OUTPUT_DIR, "results", "pareto_rockit485_fewshot", "pareto_global_front.csv"))
+    pareto_local = pd.read_csv(os.path.join(OUTPUT_DIR, "results", "pareto_rockit485_local", "pareto_local_front.csv"))
+    loo = pd.read_csv(os.path.join(OUTPUT_DIR, "loo_validation", "loo_results.csv"))
 
     return {
         "df_clean": df_clean, "df_feat": df_feat, "preds": preds,

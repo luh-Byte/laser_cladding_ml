@@ -77,19 +77,21 @@ FEATURE_EN_TO_ABBR = {v: k for k, v in FEATURE_ABBR.items()}
 
 
 def load_shap_data():
+    base_dir = os.path.join(OUTPUT_DIR, "shap_baseline")
+    fs_dir = os.path.join(OUTPUT_DIR, "shap_fewshot")
     data = {}
-    data["X_base_hv"] = pd.read_csv("outputs/shap_baseline/X_train_hv.csv")
-    data["X_base_corr"] = pd.read_csv("outputs/shap_baseline/X_train_corr.csv")
-    data["shap_base_hv"] = np.load("outputs/shap_baseline/shap_vals_hv.npy")
-    data["shap_base_corr"] = np.load("outputs/shap_baseline/shap_vals_corr.npy")
-    data["shap_inter_hv"] = np.load("outputs/shap_baseline/shap_inter_hv.npy")
-    data["shap_inter_corr"] = np.load("outputs/shap_baseline/shap_inter_corr.npy")
-    data["import_base"] = pd.read_csv("outputs/shap_baseline/shap_import_baseline.csv")
-    data["X_fs"] = pd.read_csv("outputs/shap_fewshot/X_fs.csv")
-    data["shap_fs_hv"] = np.load("outputs/shap_fewshot/shap_vals_hv_fs.npy")
-    data["shap_fs_corr"] = np.load("outputs/shap_fewshot/shap_vals_corr_fs.npy")
-    data["import_fs"] = pd.read_csv("outputs/shap_fewshot/shap_import_fewshot.csv")
-    data["rockit_idx"] = pd.read_csv("outputs/shap_fewshot/rockit_sample_index.csv")
+    data["X_base_hv"] = pd.read_csv(os.path.join(base_dir, "X_train_hv.csv"))
+    data["X_base_corr"] = pd.read_csv(os.path.join(base_dir, "X_train_corr.csv"))
+    data["shap_base_hv"] = np.load(os.path.join(base_dir, "shap_vals_hv.npy"))
+    data["shap_base_corr"] = np.load(os.path.join(base_dir, "shap_vals_corr.npy"))
+    data["shap_inter_hv"] = np.load(os.path.join(base_dir, "shap_inter_hv.npy"))
+    data["shap_inter_corr"] = np.load(os.path.join(base_dir, "shap_inter_corr.npy"))
+    data["import_base"] = pd.read_csv(os.path.join(base_dir, "shap_import_baseline.csv"))
+    data["X_fs"] = pd.read_csv(os.path.join(fs_dir, "X_fs.csv"))
+    data["shap_fs_hv"] = np.load(os.path.join(fs_dir, "shap_vals_hv_fs.npy"))
+    data["shap_fs_corr"] = np.load(os.path.join(fs_dir, "shap_vals_corr_fs.npy"))
+    data["import_fs"] = pd.read_csv(os.path.join(fs_dir, "shap_import_fewshot.csv"))
+    data["rockit_idx"] = pd.read_csv(os.path.join(fs_dir, "rockit_sample_index.csv"))
     return data
 
 
