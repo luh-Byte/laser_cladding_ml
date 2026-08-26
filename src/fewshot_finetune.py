@@ -223,7 +223,7 @@ def run_fewshot_experiment(fewshot_weight=20):
     c_model = train_fewshot_model(fewshot_weight, "lgb", "corrosion", X, y_c_zscore, sw)
 
     c_pred_zscore = c_model.predict(X_fewshot)  # type: ignore[union-attr]
-    c_pred_log = c_pred_zscore * corr_std + corr_mean
+    c_pred_log = c_pred_zscore * corr_std + corr_mean  # type: ignore[operator]
     c_pred = np.power(10.0, c_pred_log) / 10000.0
 
     ratios = c_pred / actual_corr
