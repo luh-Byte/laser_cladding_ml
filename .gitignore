@@ -5,4 +5,5 @@ outputs/
 *.pkl
 *.xlsx
 *.csv
+*.zip
 !requirements*.txt
