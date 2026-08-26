@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, Normalize
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.figures_style import (
@@ -135,7 +135,7 @@ def plot_beeswarm(data):
 
         display_labels = []
         for idx in order:
-            cn = feat_names[idx]
+            cn = feat_names[int(idx)]
             en = FEATURE_CN_TO_EN.get(cn, cn)
             display_labels.append(FEATURE_EN_TO_ABBR.get(en, en))
         ax.set_yticks(range(n_features))
@@ -143,7 +143,7 @@ def plot_beeswarm(data):
         ax.set_xlabel("SHAP value", fontsize=FONT_SIZE_SHAP_LABEL, fontweight="bold")
         ax.axvline(x=0, color=GRAY, linewidth=1.0, linestyle="--", alpha=0.6)
 
-        sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(0, 1))
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=Normalize(0, 1))
         sm.set_array([])
         cbar = fig.colorbar(sm, ax=ax, shrink=0.6, pad=0.02)
         cbar.set_label("Feature value (low -> high)", fontsize=FONT_SIZE_SHAP_CBAR)
@@ -256,7 +256,7 @@ def plot_dependence(data):
     fs_columns = list(X_fs.columns)
 
     for i, feat_cn in enumerate(hv_top5_cn):
-        feat_en = FEATURE_CN_TO_EN.get(feat_cn, feat_cn)
+        feat_en = str(FEATURE_CN_TO_EN.get(feat_cn, feat_cn))
         print(f"  [Dependence {i+1}/10] Hardness - {feat_en}")
         feat_idx = fs_columns.index(feat_cn)
 
@@ -299,7 +299,7 @@ def plot_dependence(data):
         plt.close(fig)
 
     for i, feat_cn in enumerate(corr_top5_cn):
-        feat_en = FEATURE_CN_TO_EN.get(feat_cn, feat_cn)
+        feat_en = str(FEATURE_CN_TO_EN.get(feat_cn, feat_cn))
         print(f"  [Dependence {i+6}/10] Corrosion - {feat_en}")
         feat_idx = fs_columns.index(feat_cn)
 

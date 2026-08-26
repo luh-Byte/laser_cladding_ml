@@ -1,0 +1,82 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "train",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\src\\train.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "train_final",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\src\\train_final.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "fewshot_finetune",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\src\\fewshot_finetune.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "figures_main",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\src\\figures_main.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "figures_extra",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\src\\figures_extra.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "figures_shap",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\src\\figures_shap.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
+        }
+    ]
+}
