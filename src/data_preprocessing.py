@@ -166,7 +166,7 @@ def generate_split_indices(y_hardness=None, y_corrosion_log=None,
     """
     from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 
-    n_samples = len(y_hardness)
+    n_samples = len(y_hardness)  # type: ignore[arg-type]
     all_indices = np.arange(n_samples)
     splits = []
 
