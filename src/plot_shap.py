@@ -30,7 +30,8 @@ from src.plot_style import (
 
 import matplotlib.pyplot as plt
 
-OUT_DIR = "/workspace/outputs/figures/shap"
+from src.config import OUTPUT_DIR
+OUT_DIR = os.path.join(OUTPUT_DIR, "figures", "shap")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 FEATURE_NAMES = [

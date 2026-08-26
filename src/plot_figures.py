@@ -34,8 +34,9 @@ from src.plot_style import (
 
 import matplotlib.pyplot as plt
 
-OUT_DIR = "/workspace/outputs/figures"
-SHAP_DIR = f"{OUT_DIR}/shap"
+from src.config import OUTPUT_DIR
+OUT_DIR = os.path.join(OUTPUT_DIR, "figures")
+SHAP_DIR = os.path.join(OUT_DIR, "shap")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 from src.data_preprocessing import load_raw_data, clean_data

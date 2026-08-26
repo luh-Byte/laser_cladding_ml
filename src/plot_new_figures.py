@@ -33,7 +33,8 @@ from src.feature_engineering import compute_derived_features
 
 import matplotlib.pyplot as plt
 
-OUT_DIR = "/workspace/outputs/figures"
+from src.config import OUTPUT_DIR
+OUT_DIR = os.path.join(OUTPUT_DIR, "figures")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # 简写映射

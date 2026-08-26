@@ -210,9 +210,11 @@ def _make_all_text_bold(fig):
             pass
 
 
-def save(fig, name, out_dir="/workspace/outputs/figures"):
+def save(fig, name, out_dir=None):
     """保存图表为PNG (300dpi), 强制全文字体加粗(Times New Roman Bold)"""
-    import os
+    if out_dir is None:
+        from src.config import OUTPUT_DIR
+        out_dir = os.path.join(OUTPUT_DIR, "figures")
     os.makedirs(out_dir, exist_ok=True)
     # Force a draw to populate all text objects
     fig.canvas.draw()
