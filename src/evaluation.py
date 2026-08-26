@@ -113,11 +113,12 @@ def export_predictions(model_name, target_name, rep_idx,
     out_dir = output_dir or os.path.join(RESULT_DIR, "predictions")
     os.makedirs(out_dir, exist_ok=True)
 
+    safe_denom = np.where(np.abs(y_true) > 1e-15, np.abs(y_true), np.nan)
     df = pd.DataFrame({
         "真实值": y_true,
         "预测值": y_pred,
         "绝对误差": errors,
-        "相对误差(%)": errors / np.abs(y_true) * 100,
+        "相对误差(%)": errors / safe_denom * 100,
     })
     filename = f"pred_{model_name}_{target_name}_rep{rep_idx}.csv"
     filepath = os.path.join(out_dir, filename)
