@@ -421,8 +421,8 @@ def plot_stacked_composition(data):
     legend_handles = [Patch(facecolor=elem_colors[i], edgecolor="black",
                             linewidth=0.8, label=elem) for i, elem in enumerate(elements)]
     ax.legend(handles=legend_handles, fontsize=FONT_SIZE_LEGEND,
-              loc="center left", bbox_to_anchor=(0.87, 0.5),
-              frameon=False)
+              loc="upper center", bbox_to_anchor=(0.5, 1.12),
+              ncol=len(elements), frameon=False)
     ax.set_ylim(0, 110)
 
     create_gradient_rect(ax)
