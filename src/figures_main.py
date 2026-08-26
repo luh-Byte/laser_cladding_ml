@@ -1,5 +1,5 @@
 """
-数据可视化图谱(10张)
+数据可视化图谱(13张)
 ===================================
 使用 plot_style.py 统一样式：
 - 渐变背景 #F8F9E4 → #E5F2FB
@@ -257,6 +257,7 @@ def plot_model_comparison_bar(data):
     style_ax(ax, grid=False, right_top_ticks=False)
     ax.set_ylim(min(0, min(v[0] for v in hv_r2) - 0.1),
                 max(v[0] for v in hv_r2) + 0.15)
+    ax.set_xlim(-0.5, len(models) - 0.5)
 
     save(fig, "02_model_comparison_bar", OUT_DIR)
     plt.close(fig)
@@ -421,8 +422,8 @@ def plot_stacked_composition(data):
     legend_handles = [Patch(facecolor=elem_colors[i], edgecolor="black",
                             linewidth=0.8, label=elem) for i, elem in enumerate(elements)]
     ax.legend(handles=legend_handles, fontsize=FONT_SIZE_LEGEND,
-              loc="upper center", bbox_to_anchor=(0.5, 0.98),
-              ncol=len(elements), frameon=False)
+              loc="center left", bbox_to_anchor=(0.87, 0.5),
+              frameon=False)
     ax.set_ylim(0, 110)
 
     create_gradient_rect(ax)
