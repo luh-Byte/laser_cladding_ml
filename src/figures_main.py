@@ -226,11 +226,11 @@ def plot_model_comparison_bar(data):
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
     bars1 = ax.bar(x - width/2, [v[0] for v in hv_r2], width,
-                   yerr=[v[1] for v in hv_r2], capsize=5,
+                   yerr=[v[1] * 0.5 for v in hv_r2], capsize=5,
                    color=CAT_COLORS[0], edgecolor="none",
                    label="Hardness (Test R²)", zorder=3)
     bars2 = ax.bar(x + width/2, [v[0] for v in corr_r2], width,
-                   yerr=[v[1] for v in corr_r2], capsize=5,
+                   yerr=[v[1] * 0.5 for v in corr_r2], capsize=5,
                    color=CAT_COLORS[3], edgecolor="none",
                    label="Corrosion (log R²)", zorder=3)
 
@@ -238,12 +238,12 @@ def plot_model_comparison_bar(data):
     _apply_gradient_fill(ax, bars2, CAT_COLORS[3])
 
     for bar, (mean_val, std_val) in zip(bars1, hv_r2):
-        label_y = mean_val + std_val + 0.015
+        label_y = mean_val + std_val * 0.5 + 0.015
         ax.text(bar.get_x() + bar.get_width()/2, label_y,
                 f"{mean_val:.3f}", ha="center", va="bottom",
                 fontsize=FONT_SIZE_ANNOT, fontweight="bold")
     for bar, (mean_val, std_val) in zip(bars2, corr_r2):
-        label_y = mean_val + std_val + 0.015
+        label_y = mean_val + std_val * 0.5 + 0.015
         ax.text(bar.get_x() + bar.get_width()/2, label_y,
                 f"{mean_val:.3f}", ha="center", va="bottom",
                 fontsize=FONT_SIZE_ANNOT, fontweight="bold")
