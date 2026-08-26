@@ -197,7 +197,7 @@ def run_loo_fewshot(fewshot_weight=20):
 
         # 预测硬度
         hv_pred = h_model.predict(X_test)[0]  # type: ignore[index]
-        hv_pred_loo[test_idx] = hv_pred
+        hv_pred_loo[test_idx] = hv_pred  # type: ignore[index]
 
         # 预测腐蚀
         c_pred_z = c_model.predict(X_test)[0]  # type: ignore[index]
