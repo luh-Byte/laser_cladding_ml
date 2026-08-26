@@ -104,10 +104,10 @@ def plot_radar_chart(df_clean, df_feat):
     for i, (grp, color) in enumerate(zip(group_labels, group_colors)):
         vals = group_means.loc[grp].values.tolist()
         vals += vals[:1]
-        ax.plot(angles, vals, '-', color=color, linewidth=2.5, label=grp, zorder=3)
-        ax.fill(angles, vals, color=color, alpha=0.15, zorder=2)
+        ax.plot(np.array(angles), np.array(vals), '-', color=color, linewidth=2.5, label=grp, zorder=3)
+        ax.fill(np.array(angles), np.array(vals), color=color, alpha=0.15, zorder=2)
         # 端点标记
-        ax.scatter(angles[:-1], vals[:-1], color=color, s=50, zorder=4,
+        ax.scatter(np.array(angles[:-1]), np.array(vals[:-1]), color=color, s=50, zorder=4,
                    edgecolors='black', linewidths=0.8)
 
     ax.set_xticks(angles[:-1])
