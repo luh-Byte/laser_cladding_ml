@@ -196,11 +196,11 @@ def run_loo_fewshot(fewshot_weight=20):
         X_test = X_test_scaled[:, feat_idx]
 
         # 预测硬度
-        hv_pred = h_model.predict(X_test)[0]
-        hv_pred_loo[test_idx] = hv_pred  # type: ignore[index]
+        hv_pred = h_model.predict(X_test)[0]  # type: ignore[index]
+        hv_pred_loo[test_idx] = hv_pred
 
         # 预测腐蚀
-        c_pred_z = c_model.predict(X_test)[0]
+        c_pred_z = c_model.predict(X_test)[0]  # type: ignore[index]
         c_pred_log = c_pred_z * corr_std + corr_mean
         c_pred = np.power(10.0, c_pred_log) / 10000.0
         corr_pred_loo[test_idx] = c_pred
