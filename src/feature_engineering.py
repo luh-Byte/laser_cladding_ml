@@ -77,7 +77,7 @@ def filter_correlated_features(X_train, feature_names, threshold=CORRELATION_THR
         for j in range(i + 1, n):
             if feature_names[j] in to_drop:
                 continue
-            r = corr_matrix.iloc[i, j]
+            r = float(corr_matrix.iloc[i, j])
             if abs(r) > threshold:
                 # 保留前者，剔除后者
                 to_drop.add(feature_names[j])

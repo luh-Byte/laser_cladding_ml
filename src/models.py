@@ -19,7 +19,7 @@ def train_knn(X_train, y_train):
     param_grid = HYPERPARAM_GRIDS["KNN"]
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
-        n_jobs=-1, return_train_score=True
+        n_jobs=2, return_train_score=True
     )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
@@ -33,7 +33,7 @@ def train_svr(X_train, y_train):
     param_grid = HYPERPARAM_GRIDS["SVR"]
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
-        n_jobs=-1, return_train_score=True
+        n_jobs=2, return_train_score=True
     )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
@@ -47,7 +47,7 @@ def train_rf(X_train, y_train):
     param_grid = HYPERPARAM_GRIDS["RF"]
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
-        n_jobs=-1, return_train_score=True
+        n_jobs=2, return_train_score=True
     )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
@@ -66,7 +66,7 @@ def train_lightgbm(X_train, y_train):
     param_grid = HYPERPARAM_GRIDS["LightGBM"]
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
-        n_jobs=-1, return_train_score=True
+        n_jobs=2, return_train_score=True
     )
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
