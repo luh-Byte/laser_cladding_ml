@@ -252,7 +252,7 @@ def plot_model_comparison_bar(data):
     ax.set_xticklabels(models, fontsize=FONT_SIZE_TICK)
     ax.set_ylabel("R²", fontsize=FONT_SIZE_LABEL)
     ax.legend(fontsize=FONT_SIZE_LEGEND, loc="upper left",
-              bbox_to_anchor=(0, 1.08), frameon=False)
+              bbox_to_anchor=(-0.05, 1.03), frameon=False)
 
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
@@ -423,8 +423,8 @@ def plot_stacked_composition(data):
     legend_handles = [Patch(facecolor=elem_colors[i], edgecolor="black",
                             linewidth=0.8, label=elem) for i, elem in enumerate(elements)]
     ax.legend(handles=legend_handles, fontsize=FONT_SIZE_LEGEND,
-              loc="center left", bbox_to_anchor=(0.87, 0.5),
-              frameon=False)
+              loc="upper center", bbox_to_anchor=(0.5, 0.98),
+              ncol=len(elements), frameon=False)
     ax.set_ylim(0, 110)
 
     create_gradient_rect(ax)
@@ -476,7 +476,7 @@ def plot_pareto_bubble(data):
 
     ax.annotate(f"Local Best: {best_local['硬度']:.0f}HV, {best_local['激光功率']:.0f}W",
                 xy=(best_local["腐蚀电流"] * 1e7, best_local["硬度"]),
-                xytext=(-160, 10), textcoords="offset points",
+                xytext=(-160, 8), textcoords="offset points",
                 fontsize=FONT_SIZE_ANNOT, color=CAT_COLORS[5],
                 fontweight="bold",
                 arrowprops=dict(arrowstyle="->", color=CAT_COLORS[5], lw=1.5))
