@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, Normalize
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.figures_style import (
@@ -115,7 +115,7 @@ def plot_radar_chart(df_clean, df_feat):
     ax.set_ylim(0, 1)
     ax.set_yticks([0.2, 0.4, 0.6, 0.8])
     ax.set_yticklabels(["0.2", "0.4", "0.6", "0.8"], fontsize=FONT_SIZE_TICK - 2)
-    ax.set_rlabel_position(90)
+    ax.set_rlabel_position(90)  # type: ignore[attr-defined]
 
     ax.legend(loc='upper right', bbox_to_anchor=(1.25, 1.1),
               fontsize=FONT_SIZE_LEGEND, frameon=False)
@@ -172,8 +172,8 @@ def plot_parallel_coordinates(df_clean, df_feat):
 
     # 颜色条
     sm = plt.cm.ScalarMappable(cmap=seq_cmap,
-                               norm=plt.Normalize(vmin=hardness_sorted.min(),
-                                                  vmax=hardness_sorted.max()))
+                               norm=Normalize(vmin=hardness_sorted.min(),
+                                              vmax=hardness_sorted.max()))
     sm.set_array([])
     cbar = fig.colorbar(sm, ax=ax, shrink=0.8, pad=0.02)
     cbar.set_label("Hardness (HV)", fontweight='bold', fontsize=FONT_SIZE_CBAR)
@@ -431,7 +431,7 @@ def plot_andrews_curve(df_clean, df_feat):
 
     # 颜色条
     sm = plt.cm.ScalarMappable(cmap=seq_cmap,
-                               norm=plt.Normalize(vmin=hardness.min(), vmax=hardness.max()))
+                               norm=Normalize(vmin=hardness.min(), vmax=hardness.max()))
     sm.set_array([])
     cbar = fig.colorbar(sm, ax=ax, shrink=0.8, pad=0.02)
     cbar.set_label("Hardness (HV)", fontweight='bold', fontsize=FONT_SIZE_CBAR)
