@@ -114,6 +114,8 @@ def plot_beeswarm(data):
         cmap = LinearSegmentedColormap.from_list(
             "shap_vivid", ["#728BDE", "#E246C9", "#E97A6F"], N=256)
 
+        n_features = shap_vals.shape[1]
+        feat_names = list(X.columns)
         mean_abs = np.mean(np.abs(shap_vals), axis=0)
         order = np.argsort(mean_abs)
 
@@ -131,8 +133,13 @@ def plot_beeswarm(data):
                        c=norm_fv[sort_idx], cmap=cmap, s=12, alpha=1.0,
                        edgecolors="none", zorder=3)
 
-        ax.set_yticks(range(len(FEATURE_NAMES)))
-        ax.set_yticklabels([FEATURE_EN_TO_ABBR.get(FEATURE_NAMES[i], FEATURE_NAMES[i]) for i in order])
+        display_labels = []
+        for idx in order:
+            cn = feat_names[idx]
+            en = FEATURE_CN_TO_EN.get(cn, cn)
+            display_labels.append(FEATURE_EN_TO_ABBR.get(en, en))
+        ax.set_yticks(range(n_features))
+        ax.set_yticklabels(display_labels)
         ax.set_xlabel("SHAP value", fontsize=FONT_SIZE_SHAP_LABEL, fontweight="bold")
         ax.axvline(x=0, color=GRAY, linewidth=1.0, linestyle="--", alpha=0.6)
 
@@ -246,9 +253,12 @@ def plot_dependence(data):
     hv_top5 = [FEATURE_CN_TO_EN[cn] for cn in hv_top5_cn]
     corr_top5 = [FEATURE_CN_TO_EN[cn] for cn in corr_top5_cn]
 
-    for i, feat in enumerate(hv_top5):
-        print(f"  [Dependence {i+1}/10] Hardness - {feat}")
-        feat_idx = FEATURE_NAMES.index(feat)
+    fs_columns = list(X_fs.columns)
+
+    for i, feat_cn in enumerate(hv_top5_cn):
+        feat_en = FEATURE_CN_TO_EN.get(feat_cn, feat_cn)
+        print(f"  [Dependence {i+1}/10] Hardness - {feat_en}")
+        feat_idx = fs_columns.index(feat_cn)
 
         fig, ax = plt.subplots(figsize=(7, 5))
 
@@ -271,7 +281,7 @@ def plot_dependence(data):
         except Exception:
             pass
 
-        feat_abbr = FEATURE_EN_TO_ABBR.get(feat, feat)
+        feat_abbr = FEATURE_EN_TO_ABBR.get(feat_en, feat_en)
 
         cbar = fig.colorbar(scatter, ax=ax, shrink=0.7, pad=0.02)
         cbar.set_label(feat_abbr, fontsize=FONT_SIZE_SHAP_CBAR)
@@ -285,12 +295,13 @@ def plot_dependence(data):
         create_gradient_rect(ax)
         style_ax(ax, grid=False, right_top_ticks=False)
 
-        save(fig, f"dependence_Hardness_{feat}", OUT_DIR)
+        save(fig, f"dependence_Hardness_{feat_en}", OUT_DIR)
         plt.close(fig)
 
-    for i, feat in enumerate(corr_top5):
-        print(f"  [Dependence {i+6}/10] Corrosion - {feat}")
-        feat_idx = FEATURE_NAMES.index(feat)
+    for i, feat_cn in enumerate(corr_top5_cn):
+        feat_en = FEATURE_CN_TO_EN.get(feat_cn, feat_cn)
+        print(f"  [Dependence {i+6}/10] Corrosion - {feat_en}")
+        feat_idx = fs_columns.index(feat_cn)
 
         fig, ax = plt.subplots(figsize=(7, 5))
 
@@ -313,7 +324,7 @@ def plot_dependence(data):
         except Exception:
             pass
 
-        feat_abbr = FEATURE_EN_TO_ABBR.get(feat, feat)
+        feat_abbr = FEATURE_EN_TO_ABBR.get(feat_en, feat_en)
 
         cbar = fig.colorbar(scatter, ax=ax, shrink=0.7, pad=0.02)
         cbar.set_label(feat_abbr, fontsize=FONT_SIZE_SHAP_CBAR)
@@ -327,7 +338,7 @@ def plot_dependence(data):
         create_gradient_rect(ax)
         style_ax(ax, grid=False, right_top_ticks=False)
 
-        save(fig, f"dependence_Corrosion_{feat}", OUT_DIR)
+        save(fig, f"dependence_Corrosion_{feat_en}", OUT_DIR)
         plt.close(fig)
 
     print("  [P1] Dependence x 10 done")
