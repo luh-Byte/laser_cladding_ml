@@ -20,7 +20,7 @@ def train_knn(X_train, y_train):
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
         n_jobs=2, return_train_score=True
-    )
+    )  # type: ignore[arg-type]
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [KNN] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -34,7 +34,7 @@ def train_svr(X_train, y_train):
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
         n_jobs=2, return_train_score=True
-    )
+    )  # type: ignore[arg-type]
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [SVR] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -48,7 +48,7 @@ def train_rf(X_train, y_train):
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
         n_jobs=2, return_train_score=True
-    )
+    )  # type: ignore[arg-type]
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [RF] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -67,7 +67,7 @@ def train_lightgbm(X_train, y_train):
     grid = GridSearchCV(
         model, param_grid, cv=CV_FOLDS, scoring="r2",
         n_jobs=2, return_train_score=True
-    )
+    )  # type: ignore[arg-type]
     grid.fit(X_train, y_train)
     best_model = grid.best_estimator_
     print(f"  [LightGBM] 最优参数: {grid.best_params_}, CV R2: {grid.best_score_:.4f}")
@@ -114,4 +114,4 @@ def get_permutation_importance(model, X_test, y_test, feature_names, scoring="r2
         model, X_test, y_test, n_repeats=10,
         random_state=BASE_RANDOM_SEED, scoring=scoring
     )
-    return dict(zip(feature_names, result.importances_mean))
+    return dict(zip(feature_names, result.importances_mean))  # type: ignore[attr-defined]
