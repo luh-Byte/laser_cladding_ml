@@ -102,25 +102,68 @@ FEATURE_CN_TO_ABBR = {
 
 
 def _gradient_bar_color(base_color):
-    """Return a colormap for vertical bar gradient: white (bottom) -> base_color (top)."""
+    """
+    为柱状图生成垂直渐变配色映射 (colormap)。
+
+    渐变方向: 底部 (半透明浅色) → 顶部 (不透明深色),
+    使柱子呈现从下到上逐渐加深的立体渐变效果。
+
+    参数:
+        base_color (str/tuple): 基准颜色, 支持 Matplotlib 可识别的格式
+                                (如 '#E97A6F'、'red'、RGB 元组等)
+
+    返回:
+        LinearSegmentedColormap: 可传递给 imshow 的自定义色带映射
+    """
+    # 将任意格式颜色统一转换为 RGBA (红/绿/蓝/透明度) 四元组
     from matplotlib.colors import to_rgba
     r, g, b, _ = to_rgba(base_color)
+
+    # 构建 256 级色带: 底部 15% 透明度 (极浅) → 顶部 100% 透明度 (实色)
+    # 同一色调仅改变透明度, 形成单色垂直渐变柱
     return LinearSegmentedColormap.from_list(
         "bar_grad", [(r, g, b, 0.15), (r, g, b, 1)], N=256)
 
 
 def _apply_gradient_fill(ax, bars, base_color):
-    """Apply vertical gradient fill to each bar: white at bottom, color on top."""
+    """
+    为柱状图的每个柱子应用垂直渐变填充 (底部浅 → 顶部深)。
+
+    原理:
+        1. 调用 _gradient_bar_color 生成渐变色带 (colormap)
+        2. 用 imshow 在每个柱子区域绘制 256 级灰度
+        3. 原始 bar 设为不可见, 由渐变图像替代其视觉
+
+    参数:
+        ax (Axes):   Matplotlib 轴对象
+        bars (BarContainer): ax.bar() 返回的柱子容器
+        base_color (str/tuple): 基准颜色 (如 '#E97A6F')
+    """
+    # 1. 生成垂直渐变色带 (底部 15% 透明度 → 顶部 100% 透明度)
     cmap = _gradient_bar_color(base_color)
+
+    # 2. 遍历每根柱子, 用渐变图像替换原始矩形
     for bar in bars:
+        # 移除原始柱的边框 (后续由 Rectangle 单独绘制边框)
         bar.set_edgecolor("none")
-        x, y = bar.get_x(), bar.get_y()
-        w, h = bar.get_width(), bar.get_height()
+
+        # 获取柱子的位置与尺寸
+        x, y = bar.get_x(), bar.get_y()          # 左下角坐标
+        w, h = bar.get_width(), bar.get_height() # 宽度、高度
+
+        # 跳过无效柱 (高度为 0 或 NaN)
         if h == 0 or np.isnan(h):
             continue
+
+        # 3. 构建 256 行 1 列的灰度矩阵 (0=底, 1=顶)
+        #    此矩阵经 cmap 映射后, 呈现出由浅至深的垂直渐变
         gradient = np.linspace(0, 1, 256).reshape(-1, 1)
+
+        # 4. 将渐变矩阵渲染到柱子所在区域 (extent 限定矩形范围)
         ax.imshow(gradient, aspect="auto", cmap=cmap,
                   extent=[x, x + w, y, y + h], zorder=bar.get_zorder())
+
+        # 5. 隐藏原始柱 (渐变图像已替代其视觉)
         bar.set_visible(False)
 
 
@@ -146,31 +189,62 @@ def _apply_3d_fill(ax, bars, base_color, zorder=3):
         bar.set_visible(False)
 
 def plot_correlation_heatmap(data):
-    df = data["df_feat"]
+    """
+    图1: 相关性矩阵热图 (Pearson 相关系数)。
+
+    功能:
+        1. 提取 15 个特征 (工艺参数 + 成分 + 性能指标)
+        2. 计算 Pearson 相关系数矩阵 (15×15)
+        3. 用发散色带 (蓝→白→红) 可视化: 正相关→红, 负相关→蓝
+        4. 标注每格数值, 高相关 (>0.65) 用白色字, 低相关用黑色字
+        5. 右侧添加 colorbar 标注 Pearson r 值
+
+    参数:
+        data (dict): load_all_data() 返回的字典, 需包含 "df_feat"
+    """
+    # ---------- 1. 数据准备 ----------
+    df = data["df_feat"]  # 含衍生特征的完整数据框
+
+    # 中文列名 (用于从 df 中选取数据)
     cols = ["激光功率", "扫描速度", "送粉速率", "光斑直径", "离焦量",
             "C", "Cr", "Mn", "Fe", "线能量密度", "粉末能量比",
             "碳当量", "镍当量", "硬度", "腐蚀电流"]
+
+    # 英文列名 (备用, 未直接用于绘图)
     cols_en = ["Laser Power", "Scan Speed", "Powder Feed Rate", "Spot Diameter",
                "Defocus", "C", "Cr", "Mn", "Fe", "Line Energy Density",
                "Powder-Energy Ratio", "Carbon Equivalent", "Ni Equivalent",
                "Hardness", "Corrosion Current"]
-    # 简写用于轴标签显示
+
+    # 简写列名 (从 FEATURE_ABBR 字典取键, 用于坐标轴标签显示)
     cols_abbr = list(FEATURE_ABBR.keys())
+
+    # 计算 15×15 Pearson 相关系数矩阵
     corr = df[cols].corr()
 
+    # ---------- 2. 构建发散色带 ----------
+    # 蓝 (#728BDE) → 白 (#F8F1F1) → 红 (#E85345)
+    # 正值呈红色调, 负值呈蓝色调, 0 附近呈白色
     cmap = LinearSegmentedColormap.from_list(
         "paper_diverging",
         ["#728BDE", "#F8F1F1", "#E85345"],
         N=256)
 
+    # ---------- 3. 绘制热图 ----------
     fig, ax = plt.subplots(figsize=FIG_SIZE_HEATMAP)
+    # imshow 渲染矩阵, vmin/vmax 固定为 [-1, 1] (Pearson r 范围)
     im = ax.imshow(corr.values, cmap=cmap, vmin=-1, vmax=1, aspect="auto")
 
-    ax.set_xticks(range(len(cols)))
-    ax.set_yticks(range(len(cols)))
+    # ---------- 4. 设置坐标轴刻度 ----------
+    ax.set_xticks(range(len(cols)))  # X 轴 15 个刻度
+    ax.set_yticks(range(len(cols)))  # Y 轴 15 个刻度
+    # X 轴: 旋转 45° 右对齐, 显示简写标签
     ax.set_xticklabels(cols_abbr, rotation=45, ha="right", fontsize=FONT_SIZE_TICK_HEAT)
+    # Y 轴: 水平显示简写标签
     ax.set_yticklabels(cols_abbr, fontsize=FONT_SIZE_TICK_HEAT)
 
+    # ---------- 5. 标注每格数值 ----------
+    # 高相关 (|r|>0.65) 用白色字 (背景深), 低相关用黑色字 (背景浅)
     for i in range(len(cols)):
         for j in range(len(cols)):
             val = corr.values[i, j]
@@ -179,6 +253,8 @@ def plot_correlation_heatmap(data):
                     fontsize=9, color=color,
                     fontweight="bold")
 
+    # ---------- 6. 添加 Colorbar ----------
+    # 用 make_axes_locatable 在热图右侧 (5% 宽度) 追加 colorbar 轴
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.08)
@@ -186,10 +262,12 @@ def plot_correlation_heatmap(data):
     cbar.set_label("Pearson r", fontweight="bold", fontsize=FONT_SIZE_CBAR_HEAT)
     cbar.ax.tick_params(labelsize=FONT_SIZE_CBAR_HEAT)
 
+    # ---------- 7. 加粗黑色图框 ----------
     for spine in ax.spines.values():
         spine.set_linewidth(2.5)
         spine.set_color("black")
 
+    # ---------- 8. 保存 & 关闭 ----------
     save(fig, "01_correlation_heatmap", OUT_DIR)
     plt.close(fig)
     print("  [1/13] 相关性矩阵热图 ✓")
@@ -380,54 +458,87 @@ def plot_violin_by_cr(data):
 # 图5：堆叠柱状图 — 材料成分占比
 # ============================================================
 def plot_stacked_composition(data):
-    df = data["df_clean"].copy()
-    elements = ["C", "Cr", "Si", "Ni", "Fe", "Mn", "Mo"]
-    elem_colors = CAT_COLORS[:7]
+    """
+    图5: 堆叠柱状图 — 按 Cr 含量分组展示各元素平均占比。
 
+    功能:
+        1. 将样本按 Cr 含量分为三组 (<20%, 20-50%, 50-80%)
+        2. 计算每组中 7 种元素 (C, Cr, Si, Ni, Fe, Mn, Mo) 的平均含量
+        3. 绘制堆叠柱状图, 每根柱子由多个元素层叠组成
+        4. 对每层应用 3D 渐变填充 + 黑色边框, 增强立体感
+        5. 用代理 Patch 重建图例 (3D fill 会隐藏 bar, 导致默认图例失效)
+
+    参数:
+        data (dict): load_all_data() 返回的字典, 需包含 "df_clean"
+    """
+    # ---------- 1. 数据准备 ----------
+    df = data["df_clean"].copy()                          # 获取清洗后的原始数据
+    elements = ["C", "Cr", "Si", "Ni", "Fe", "Mn", "Mo"]  # 需要统计的 7 种元素
+    elem_colors = CAT_COLORS[:7]                           # 每种元素分配一个颜色
+
+    # 按 Cr 含量将样本分为三组 (wt%)
     df["Cr_group"] = pd.cut(df["Cr"], bins=[0, 20, 50, 80],
                              labels=["Cr<20%", "20-50%", "50-80%"])
+    # 按分组计算各元素的平均含量, 得到 3 行 x 7 列的透视表
     grouped = df.groupby("Cr_group")[elements].mean()
-    n_groups = len(grouped)
+    n_groups = len(grouped)   # 分组数量 (通常为 3)
 
+    # ---------- 2. 创建画布 ----------
     fig, ax = plt.subplots(figsize=FIG_SIZE)
-    ax.set_xlim(-0.5, n_groups - 0.3)
+    ax.set_xlim(-0.5, n_groups - 0.3)   # 横向留出边距
 
-    bottom = np.zeros(n_groups)
+    # ---------- 3. 绘制堆叠柱状图 ----------
+    bottom = np.zeros(n_groups)   # 初始化每组柱子的底部高度 (从 0 开始)
     for i, elem in enumerate(elements):
+        # 3a. 获取当前元素在三组中的平均含量
         vals = grouped[elem].values
+
+        # 3b. 绘制原始柱 (zorder=3), 后续会被 3D fill 覆盖
         bars = ax.bar(range(n_groups), vals, bottom=bottom,
                       color=elem_colors[i], edgecolor="black", linewidth=0.8,
                       label=elem, width=0.6, zorder=3)
+
+        # 3c. 应用 3D 渐变填充 (水平方向: 左右深→中间浅), 替换原始柱的视觉
         _apply_3d_fill(ax, bars, elem_colors[i], zorder=3)
+
+        # 3d. 为每个柱段添加黑色边框 (Rectangle), 使堆叠层次分明
         for j in range(n_groups):
-            x = bars[j].get_x()
-            w = bars[j].get_width()
-            y = bars[j].get_y()
-            h = bars[j].get_height()
+            x = bars[j].get_x()       # 柱段左下角 x 坐标
+            w = bars[j].get_width()   # 柱段宽度
+            y = bars[j].get_y()       # 柱段底部 y 坐标 (堆叠后的起点)
+            h = bars[j].get_height()  # 柱段高度 (当前元素的含量值)
             if h > 0 and not np.isnan(h):
                 ax.add_patch(Rectangle((x, y), w, h, fill=False,
                                            edgecolor="black", linewidth=0.8,
                                            zorder=5))
+
+        # 3e. 在柱段中心标注数值 (仅标注含量 > 3 wt% 的元素, 避免拥挤)
         for j, v in enumerate(vals):
             if v > 3:
                 ax.text(j, bottom[j] + v/2, f"{v:.1f}",
                         ha="center", va="center", fontsize=FONT_SIZE_ANNOT,
                         color="black", fontweight="bold")
+
+        # 3f. 累加当前元素高度, 作为下一层元素的底部起点
         bottom += vals
 
+    # ---------- 4. 坐标轴与标签 ----------
     ax.set_xticks(range(n_groups))
     ax.set_xticklabels(grouped.index, fontsize=FONT_SIZE_TICK)
     ax.set_ylabel("Content (wt%)", fontsize=FONT_SIZE_LABEL, fontweight="bold")
-    # 用代理图例恢复元素颜色 (3d fill隐藏了bar导致默认图例无色)
+
+    # ---------- 5. 图例修复 ----------
+    # 3D fill 把原始 bar 隐藏了, 默认图例无法获取颜色, 因此用 Patch 代理重建
     from matplotlib.patches import Patch
     legend_handles = [Patch(facecolor=elem_colors[i], edgecolor="black",
                             linewidth=0.8, label=elem) for i, elem in enumerate(elements)]
     ax.legend(handles=legend_handles, fontsize=FONT_SIZE_LEGEND,
-              loc="upper center", bbox_to_anchor=(0.5, 0.98),
-              ncol=len(elements), frameon=False,
+              loc="upper center", bbox_to_anchor=(0.5, 0.99),   # 顶部居中横排
+              ncol=len(elements), frameon=False,                # 无框, 7 列布局
               handletextpad=0.3, columnspacing=0.8)
     ax.set_ylim(0, 110)
 
+    # ---------- 6. 统一样式 & 保存 ----------
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 

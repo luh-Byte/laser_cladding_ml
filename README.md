@@ -1,4 +1,4 @@
-# 激光熔覆涂层性能预测 — 机器学习工作流（Excel列版本）
+# 激光熔覆涂层性能预测 — 机器学习工作流
 
 ## 项目概述
 
@@ -6,7 +6,7 @@
 - **显微硬度** (HV)
 - **腐蚀电流密度** (A/cm²)
 
-> 本版本直接使用Excel中的"腐蚀电流*10000"列作为腐蚀电流的中间表示，不再在代码中计算。
+> 腐蚀电流使用 Excel 中的 `腐蚀电流*10000` 列构造 log 目标，预测后再还原为 A/cm²。
 
 核心技术路线：标准ML训练管道 → 双目标联合分层抽样 → Few-shot微调（Rockit485专属）→ SHAP可解释性分析 → 帕累托多目标优化。
 
@@ -51,7 +51,7 @@ laser_cladding_ml/
 │   ├── data_preprocessing.py      # 数据加载/清洗/双目标分层抽样
 │   ├── feature_engineering.py     # 6项物理衍生特征/标准化/共线性筛选
 │   ├── models.py                  # 4种模型定义+超参搜索
-│   ├── train.py                  # 主训练管道（10次重复分层实验+SHAP）
+│   ├── train.py                  # 主训练管道（10次重复分层实验+SHAP中间数据）
 │   ├── train_final.py            # 全量数据最终模型训练
 │   ├── evaluation.py             # 指标计算/模型保存/日志
 │   ├── pareto_optimization.py    # 通用逐维扫描帕累托优化
@@ -61,14 +61,15 @@ laser_cladding_ml/
 │   ├── fewshot_pareto.py         # Rockit485专属帕累托优化
 │   ├── process_designer.py       # 工艺设计器（预测/逆向/约束优化）
 │   ├── loo_validation.py         # Rockit485留一法(LOO)验证
-│   ├── plot_style.py              # 统一绘图样式（渐变背景/字体/画布）
-│   ├── plot_figures.py            # 数据可视化（10张图，300DPI，全英文）
-│   ├── plot_shap.py              # SHAP可视化（24张核心图，全英文）
-│   └── loo_validation.py         # Rockit485留一法(LOO)验证
+│   ├── figures_style.py           # 统一绘图样式（渐变背景/字体/画布）
+│   ├── figures_main.py            # 主数据可视化（13张图）
+│   ├── figures_shap.py            # SHAP可视化（24张图）
+│   ├── plot_eval_figures.py       # 全量评估结果可视化（7张图）
+│   └── full_data_eval.py          # 全量数据模型评估
 ├── outputs/
 │   ├── models/                    # 训练好的模型权重
 │   ├── results/                   # 结果文件（CSV/Excel）
-│   ├── figures/                   # 10张数据可视化图（300DPI PNG）
+│   ├── figures/                   # 主图和评估图（300DPI PNG）
 │   ├── figures/shap/              # 24张SHAP可视化图（300DPI PNG）
 │   ├── shap_baseline/             # 基线模型SHAP中间数据
 │   └── shap_fewshot/              # Few-shot模型SHAP中间数据
@@ -203,28 +204,43 @@ python -m src.loo_validation
 python -m src.validate_experiment
 ```
 
-### 步骤7（可选）：全量数据最终模型
+### 步骤7：全量数据评估
 
-用全部196条数据训练最终模型（不分训练/测试集）。
+使用全部清洗后的基础数据和 4 个 Rockit485 实验点训练 Few-shot 模型，并输出 4 个实验点的预测结果。
+
+```bash
+python -m src.full_data_eval
+```
+
+**输出：**
+- `outputs/full_data_eval/full_data_eval_results.csv` — 实测值、预测值和误差
+- `outputs/full_data_eval/full_data_metrics.csv` — 硬度与腐蚀 log 空间指标
+
+### 步骤8（可选）：全量数据最终模型
+
+用全部清洗后的基础数据训练最终模型（不分训练/测试集）。
 
 ```bash
 python -m src.train_final
 ```
 
-### 步骤8：数据可视化绘图
+### 步骤9（可选）：数据可视化绘图
 
-生成全部34张论文级图表（10张数据图 + 24张SHAP图），所有文字均为英文。
+生成主数据图、SHAP图和全量评估图，所有图片以独立 PNG 文件保存。
 
 ```bash
-# 10张数据可视化图
-python -m src.plot_figures
+# 13张主数据可视化图
+python -m src.figures_main
 
 # 24张SHAP可视化图
-python -m src.plot_shap
+python -m src.figures_shap
+
+# 7张全量评估图（需先运行步骤7）
+python -m src.plot_eval_figures
 ```
 
 **输出：**
-- `outputs/figures/` — 10张数据可视化图（300DPI PNG）
+- `outputs/figures/` — 主数据图和全量评估图（300DPI PNG）
 - `outputs/figures/shap/` — 24张SHAP可视化图（300DPI PNG）
 
 ## SHAP 中间数据说明
@@ -237,23 +253,23 @@ python -m src.plot_shap
 |------|------|----------|------|
 | `best_rf_hv.pkl` | pickle | — | 最优硬度RF模型（10次中表现最好的那一轮） |
 | `best_rf_corr.pkl` | pickle | — | 最优腐蚀RF模型 |
-| `X_train_hv.csv` | CSV | 156行×13列 | 硬度训练集特征矩阵（标准化后） |
-| `X_train_corr.csv` | CSV | 156行×13列 | 腐蚀训练集特征矩阵 |
-| `shap_vals_hv.npy` | npy | (156, 13) | 硬度SHAP值 |
-| `shap_vals_corr.npy` | npy | (156, 13) | 腐蚀SHAP值（log空间） |
-| `shap_inter_hv.npy` | npy | (156, 13, 13) | 硬度SHAP交互值 |
-| `shap_inter_corr.npy` | npy | (156, 13, 13) | 腐蚀SHAP交互值 |
+| `X_train_hv.csv` | CSV | 训练集行数×13列 | 硬度训练集特征矩阵（标准化后） |
+| `X_train_corr.csv` | CSV | 训练集行数×13列 | 腐蚀训练集特征矩阵 |
+| `shap_vals_hv.npy` | npy | (训练集行数, 13) | 硬度SHAP值 |
+| `shap_vals_corr.npy` | npy | (训练集行数, 13) | 腐蚀SHAP值（log空间） |
+| `shap_inter_hv.npy` | npy | (训练集行数, 13, 13) | 硬度SHAP交互值 |
+| `shap_inter_corr.npy` | npy | (训练集行数, 13, 13) | 腐蚀SHAP交互值 |
 | `shap_import_baseline.csv` | CSV | 13行 | SHAP重要性 + 模型原生重要性 |
 
 ### Few-shot SHAP → `outputs/shap_fewshot/`
 
 | 文件 | 格式 | 形状/大小 | 说明 |
 |------|------|----------|------|
-| `X_fs.csv` | CSV | 200行×13列 | 完整训练特征矩阵（196基础+4×20重复Rockit） |
-| `shap_vals_hv_fs.npy` | npy | (200, 13) | 硬度SHAP值 |
-| `shap_vals_corr_fs.npy` | npy | (200, 13) | 腐蚀SHAP值（log空间） |
+| `X_fs.csv` | CSV | 198行×13列 | 完整训练特征矩阵（194基础+4个Rockit样本） |
+| `shap_vals_hv_fs.npy` | npy | (198, 13) | 硬度SHAP值 |
+| `shap_vals_corr_fs.npy` | npy | (198, 13) | 腐蚀SHAP值（log空间） |
 | `shap_import_fewshot.csv` | CSV | 13行 | SHAP重要性统计 |
-| `rockit_sample_index.csv` | CSV | 4行 | Rockit485样本行号（196~199） |
+| `rockit_sample_index.csv` | CSV | 4行 | Rockit485样本行号（194~197） |
 
 > 注意：腐蚀SHAP值对应log10(I×10000)空间，量级远小于硬度SHAP值（HV量纲），属正常现象。
 
@@ -261,7 +277,7 @@ python -m src.plot_shap
 
 SHAP数据支持以下图表，按优先级排序。绘图脚本需独立编写（不包含在训练流水线中）。
 
-### 统一绘图样式 (`plot_style.py`)
+### 统一绘图样式 (`figures_style.py`)
 
 所有图表使用统一样式模块：
 - **字体**：Liberation Serif（Times New Roman 度量兼容替代），全英文加粗
@@ -275,18 +291,21 @@ SHAP数据支持以下图表，按优先级排序。绘图脚本需独立编写�
 ### 绘图脚本
 
 ```bash
-# 10张数据可视化图
-python -m src.plot_figures
+# 13张主数据可视化图
+python -m src.figures_main
 
 # 24张SHAP可视化图
-python -m src.plot_shap
+python -m src.figures_shap
+
+# 7张全量评估图
+python -m src.plot_eval_figures
 ```
 
 **输出目录：**
-- `outputs/figures/` — 10张数据可视化图
+- `outputs/figures/` — 13张主数据图和7张全量评估图
 - `outputs/figures/shap/` — 24张SHAP可视化图
 
-**10张数据图清单：**
+**13张主数据图清单：**
 
 | 序号 | 文件名 | 内容 |
 |------|--------|------|
@@ -296,10 +315,13 @@ python -m src.plot_shap
 | 4 | 04_violin_by_cr.png | 硬度按Cr分组小提琴图 |
 | 5 | 05_stacked_composition.png | 材料成分堆叠柱状图 |
 | 6 | 06_pareto_bubble.png | 帕累托前沿散点气泡图 |
-| 7 | 07_predicted_vs_actual.png | 预测vs实测散点图 |
-| 8 | 08_hardness_power_trend.png | 硬度vs功率趋势图 |
-| 9 | 09_error_boxplot.png | 模型误差箱线图 |
-| 10 | 10_shap_bubble.png | SHAP重要性差异气泡图 |
+| 7 | 07_predicted_vs_actual_hardness.png | 硬度预测vs实测散点图 |
+| 8 | 08_predicted_vs_actual_corrosion.png | 腐蚀预测vs实测散点图 |
+| 9 | 09_hardness_power_trend.png | 硬度vs功率趋势图 |
+| 10 | 10_error_boxplot_hardness.png | 硬度模型误差箱线图 |
+| 11 | 11_error_boxplot_corrosion.png | 腐蚀模型误差箱线图 |
+| 12 | 12_shap_bubble_hardness.png | 硬度 SHAP 重要性对比气泡图 |
+| 13 | 13_shap_bubble_corrosion.png | 腐蚀 SHAP 重要性对比气泡图 |
 
 **24张SHAP图清单：**
 
@@ -339,7 +361,7 @@ python -m src.plot_shap
 | 31 | SHAP重要性 vs 模型原生重要性对比 | `shap_import_baseline.csv` | 两种重要性验证 |
 | 32 | Rockit样本在beeswarm上高亮标注 | Few-shot SHAP + 索引表 | 特殊样本定位 |
 
-合计约32张图，核心图约24张（P0+P1）。
+当前脚本实际生成 44 张图：13 张主数据图、24 张 SHAP 图和 7 张全量评估图。
 
 ### 材料科学合理性结论
 

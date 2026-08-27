@@ -71,7 +71,11 @@ def prepare_fewshot_data():
     return df
 
 
-def build_training_data(df_base, df_fewshot, fewshot_weight=20):
+def build_training_data(
+    df_base: pd.DataFrame,
+    df_fewshot: pd.DataFrame,
+    fewshot_weight: int = 20,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, StandardScaler, list[str], list[str]]:
     """
     构建加权训练数据。
 
@@ -114,9 +118,9 @@ def build_training_data(df_base, df_fewshot, fewshot_weight=20):
     X_final = X_scaled[:, feat_idx]
 
     # 目标变量
-    y_hardness = df_combined["硬度"].values
+    y_hardness = df_combined["硬度"].to_numpy(dtype=float)
 
-    icorr_10k = df_combined["腐蚀电流*10000"].values.astype(float)
+    icorr_10k = df_combined["腐蚀电流*10000"].to_numpy(dtype=float)
     icorr_10k = np.maximum(icorr_10k, 1e-15)
     y_corr_log = np.log10(icorr_10k)
 

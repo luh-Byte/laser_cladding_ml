@@ -1,6 +1,10 @@
 __pycache__/
 *.pyc
 .venv/
+.vscode/
+.mimocode/
+.uploads/
+data/
 outputs/
 *.pkl
 *.xlsx

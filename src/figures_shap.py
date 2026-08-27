@@ -145,7 +145,7 @@ def plot_beeswarm(data):
 
         sm = plt.cm.ScalarMappable(cmap=cmap, norm=Normalize(0, 1))
         sm.set_array([])
-        cbar = fig.colorbar(sm, ax=ax, shrink=0.6, pad=0.02)
+        cbar = fig.colorbar(sm, ax=ax, pad=0.02)
         cbar.set_label("Feature value (low -> high)", fontsize=FONT_SIZE_SHAP_CBAR)
         cbar.ax.tick_params(labelsize=FONT_SIZE_SHAP_CBAR)
 
@@ -283,7 +283,7 @@ def plot_dependence(data):
 
         feat_abbr = FEATURE_EN_TO_ABBR.get(feat_en, feat_en)
 
-        cbar = fig.colorbar(scatter, ax=ax, shrink=0.7, pad=0.02)
+        cbar = fig.colorbar(scatter, ax=ax, pad=0.02)
         cbar.set_label(feat_abbr, fontsize=FONT_SIZE_SHAP_CBAR)
         cbar.ax.tick_params(labelsize=FONT_SIZE_SHAP_CBAR)
 
@@ -326,7 +326,7 @@ def plot_dependence(data):
 
         feat_abbr = FEATURE_EN_TO_ABBR.get(feat_en, feat_en)
 
-        cbar = fig.colorbar(scatter, ax=ax, shrink=0.7, pad=0.02)
+        cbar = fig.colorbar(scatter, ax=ax, pad=0.02)
         cbar.set_label(feat_abbr, fontsize=FONT_SIZE_SHAP_CBAR)
         cbar.ax.tick_params(labelsize=FONT_SIZE_SHAP_CBAR)
 
