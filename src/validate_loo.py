@@ -35,13 +35,13 @@ from src.config import (
     CORRELATION_THRESHOLD, FEATURES_TO_REMOVE,
     MODEL_DIR, RESULT_DIR, OUTPUT_DIR
 )
-from src.data_preprocessing import load_raw_data, clean_data
-from src.feature_engineering import (
+from src.data import load_raw_data, clean_data
+from src.features import (
     compute_derived_features, get_all_feature_names,
     filter_correlated_features
 )
-from src.evaluation import load_model_bundle
-from src.fewshot_finetune import (
+from src.metrics import load_model_bundle
+from src.fewshot import (
     ROCKIT485_COMPOSITION, ROCKIT485_EXPERIMENTS,
     prepare_fewshot_data, build_training_data,
     train_fewshot_model

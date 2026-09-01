@@ -20,15 +20,15 @@ from src.config import (
     N_REPETITIONS, BASE_RANDOM_SEED, MODEL_ORDER,
     RESULT_DIR, MODEL_DIR
 )
-from src.data_preprocessing import (
+from src.data import (
     load_raw_data, clean_data, prepare_targets, generate_split_indices
 )
-from src.feature_engineering import (
+from src.features import (
     compute_derived_features, get_all_feature_names,
     FeaturePipeline, CorrosionTargetTransformer
 )
 from src.models import train_model, get_feature_importance
-from src.evaluation import (
+from src.metrics import (
     compute_hardness_metrics, compute_corrosion_metrics,
     aggregate_repetition_results, export_summary_excel,
     export_predictions, export_feature_importance,
@@ -357,7 +357,7 @@ def main():
     print("[步骤7] SHAP 中间数据计算")
     print(f"{'='*70}")
 
-    from src.shap_utils import compute_baseline_shap
+    from src.shap import compute_baseline_shap
     if best_rf_hv_model is not None and best_rf_corr_model is not None:
         compute_baseline_shap(
             best_rf_hv_model, best_rf_corr_model,

@@ -31,12 +31,12 @@ from src.config import (
     CORRELATION_THRESHOLD, FEATURES_TO_REMOVE,
     MODEL_DIR, RESULT_DIR
 )
-from src.data_preprocessing import load_raw_data, clean_data
-from src.feature_engineering import (
+from src.data import load_raw_data, clean_data
+from src.features import (
     compute_derived_features, get_all_feature_names,
     filter_correlated_features
 )
-from src.evaluation import save_model_bundle, load_model_bundle
+from src.metrics import save_model_bundle, load_model_bundle
 
 
 # ============================================================
@@ -305,7 +305,7 @@ def run_fewshot_experiment(fewshot_weight=20):
     print("SHAP 中间数据计算")
     print("=" * 60)
 
-    from src.shap_utils import compute_fewshot_shap
+    from src.shap import compute_fewshot_shap
     X_fs_df = pd.DataFrame(X, columns=sel_feat)
     compute_fewshot_shap(
         h_model, c_model,

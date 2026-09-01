@@ -24,10 +24,10 @@
             "env": {"PYTHONPATH": "${workspaceFolder}"}
         },
         {
-            "name": "fewshot_finetune",
+            "name": "fewshot",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}\\src\\fewshot_finetune.py",
+            "program": "${workspaceFolder}\\src\\fewshot.py",
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
             "console": "integratedTerminal",
@@ -35,10 +35,10 @@
             "env": {"PYTHONPATH": "${workspaceFolder}"}
         },
         {
-            "name": "figures_main",
+            "name": "plot_main",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}\\src\\figures_main.py",
+            "program": "${workspaceFolder}\\src\\plot_main.py",
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
             "console": "integratedTerminal",
@@ -46,10 +46,10 @@
             "env": {"PYTHONPATH": "${workspaceFolder}"}
         },
         {
-            "name": "figures_extra",
+            "name": "plot_extra",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}\\src\\figures_extra.py",
+            "program": "${workspaceFolder}\\src\\plot_extra.py",
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
             "console": "integratedTerminal",
@@ -57,10 +57,10 @@
             "env": {"PYTHONPATH": "${workspaceFolder}"}
         },
         {
-            "name": "figures_shap",
+            "name": "plot_shap",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}\\src\\figures_shap.py",
+            "program": "${workspaceFolder}\\src\\plot_shap.py",
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
             "console": "integratedTerminal",

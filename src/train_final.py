@@ -18,12 +18,12 @@ from src.config import (
     PROCESS_FEATURES, COMPOSITION_FEATURES,
     FEATURES_TO_REMOVE, CORRELATION_THRESHOLD
 )
-from src.data_preprocessing import load_raw_data, clean_data
-from src.feature_engineering import (
+from src.data import load_raw_data, clean_data
+from src.features import (
     compute_derived_features, get_all_feature_names,
     filter_correlated_features
 )
-from src.evaluation import save_model_bundle
+from src.metrics import save_model_bundle
 
 
 # 最优超参数（来自10次重复实验的最优模型参数）

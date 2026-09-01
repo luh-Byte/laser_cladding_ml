@@ -21,7 +21,7 @@ import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.figures_style import (
+from src.plot_style import (
     create_gradient_rect, style_ax, save,
     PALETTE, CAT_COLORS, DARK, GRAY, GRID_COLOR,
     FIG_SIZE, FIG_SIZE_WIDE, FIG_SIZE_HEATMAP,

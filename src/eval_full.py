@@ -18,10 +18,10 @@ sys.path.insert(0, PROJECT_ROOT)
 import numpy as np
 import pandas as pd
 
-from src.data_preprocessing import load_raw_data, clean_data
-from src.feature_engineering import compute_derived_features, get_all_feature_names
+from src.data import load_raw_data, clean_data
+from src.features import compute_derived_features, get_all_feature_names
 from src.config import OUTPUT_DIR
-from src.fewshot_finetune import (
+from src.fewshot import (
     ROCKIT485_EXPERIMENTS, prepare_fewshot_data,
     build_training_data, train_fewshot_model,
 )

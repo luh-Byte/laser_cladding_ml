@@ -24,8 +24,8 @@ from src.config import (
     PROCESS_FEATURES, COMPOSITION_FEATURES,
     MODEL_DIR, RESULT_DIR
 )
-from src.feature_engineering import compute_derived_features, get_all_feature_names
-from src.evaluation import load_model_bundle
+from src.features import compute_derived_features, get_all_feature_names
+from src.metrics import load_model_bundle
 
 
 # ============================================================
@@ -324,7 +324,7 @@ def run_pareto_optimization(df_clean, model_dir=None, output_dir=None):
 
 
 if __name__ == "__main__":
-    from src.data_preprocessing import load_raw_data, clean_data
+    from src.data import load_raw_data, clean_data
     df = load_raw_data()
     df_clean, _ = clean_data(df)
     run_pareto_optimization(df_clean)

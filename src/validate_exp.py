@@ -13,12 +13,12 @@ import numpy as np
 import pandas as pd
 
 from src.config import PROCESS_FEATURES, COMPOSITION_FEATURES, RESULT_DIR
-from src.evaluation import load_model_bundle
-from src.pareto_optimization import (
+from src.metrics import load_model_bundle
+from src.pareto import (
     build_feature_matrix, predict_hardness, predict_corrosion,
     get_typical_composition
 )
-from src.data_preprocessing import load_raw_data, clean_data
+from src.data import load_raw_data, clean_data
 
 
 # ============================================================

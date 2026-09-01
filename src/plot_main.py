@@ -20,7 +20,7 @@ from matplotlib.patches import Rectangle
 
 # 导入统一样式
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.figures_style import (
+from src.plot_style import (
     create_gradient_rect, style_ax, save,
     GRADIENT_TOP, GRADIENT_BOTTOM,
     PALETTE, CAT_COLORS, DARK, GRAY, GRID_COLOR,
@@ -40,8 +40,8 @@ OUT_DIR = os.path.join(OUTPUT_DIR, "figures")
 SHAP_DIR = os.path.join(OUT_DIR, "shap")
 os.makedirs(OUT_DIR, exist_ok=True)
 
-from src.data_preprocessing import load_raw_data, clean_data
-from src.feature_engineering import compute_derived_features
+from src.data import load_raw_data, clean_data
+from src.features import compute_derived_features
 
 
 def load_all_data():

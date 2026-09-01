@@ -14,13 +14,13 @@ import numpy as np
 import pandas as pd
 
 from src.config import PROCESS_FEATURES, RESULT_DIR
-from src.evaluation import load_model_bundle
-from src.pareto_optimization import (
+from src.metrics import load_model_bundle
+from src.pareto import (
     build_feature_matrix, predict_hardness,
     latin_hypercube_sampling, pareto_front,
     SEARCH_SPACE, FIXED_DIM_POINTS, SAMPLES_PER_FIXED_POINT
 )
-from src.fewshot_finetune import ROCKIT485_COMPOSITION, ROCKIT485_EXPERIMENTS
+from src.fewshot import ROCKIT485_COMPOSITION, ROCKIT485_EXPERIMENTS
 
 
 def predict_corrosion_calibrated(X_scaled, bundle):

@@ -9,10 +9,10 @@ Rockit485 材料的激光熔覆工艺预测与优化设计工具。
 3. 约束寻优：固定部分参数 → 在其余维度上搜索最优解
 
 使用方式：
-    python -m src.process_designer predict --power 1500 --speed 15 --feed 10 --spot 3.0 --defocus 0
-    python -m src.process_designer batch --input my_params.xlsx
-    python -m src.process_designer reverse --min_hardness 550 --max_corrosion 3.5e-7
-    python -m src.process_designer optimize --fix power=1800 --maximize hardness
+    python -m src.designer predict --power 1500 --speed 15 --feed 10 --spot 3.0 --defocus 0
+    python -m src.designer batch --input my_params.xlsx
+    python -m src.designer reverse --min_hardness 550 --max_corrosion 3.5e-7
+    python -m src.designer optimize --fix power=1800 --maximize hardness
 """
 
 import sys
@@ -25,13 +25,13 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
 from src.config import PROCESS_FEATURES, RESULT_DIR
-from src.evaluation import load_model_bundle
-from src.pareto_optimization import (
+from src.metrics import load_model_bundle
+from src.pareto import (
     build_feature_matrix, predict_hardness,
     latin_hypercube_sampling, pareto_front,
 )
-from src.fewshot_finetune import ROCKIT485_COMPOSITION, ROCKIT485_EXPERIMENTS
-from src.fewshot_pareto import predict_corrosion_calibrated
+from src.fewshot import ROCKIT485_COMPOSITION, ROCKIT485_EXPERIMENTS
+from src.pareto_fewshot import predict_corrosion_calibrated
 
 
 # ============================================================
@@ -413,19 +413,19 @@ def main():
         epilog="""
 示例:
   # 1. 单组工艺预测
-  python -m src.process_designer predict --power 1500 --speed 15 --feed 10 --spot 3.0 --defocus 0
+  python -m src.designer predict --power 1500 --speed 15 --feed 10 --spot 3.0 --defocus 0
 
   # 2. 批量预测（从Excel/CSV读取）
-  python -m src.process_designer batch --input my_params.xlsx --output predictions.xlsx
+  python -m src.designer batch --input my_params.xlsx --output predictions.xlsx
 
   # 3. 逆向设计：找硬度≥550HV 且 腐蚀≤3.5e-7 A/cm² 的工艺
-  python -m src.process_designer reverse --min-hardness 550 --max-corrosion 3.5e-7
+  python -m src.designer reverse --min-hardness 550 --max-corrosion 3.5e-7
 
   # 4. 约束优化：固定功率1800W，最大化硬度
-  python -m src.process_designer optimize --fix 激光功率=1800 --objective hardness
+  python -m src.designer optimize --fix 激光功率=1800 --objective hardness
 
   # 5. 约束优化：固定功率+扫描速度，帕累托寻优
-  python -m src.process_designer optimize --fix 激光功率=1500 --fix 扫描速度=15 --objective both
+  python -m src.designer optimize --fix 激光功率=1500 --fix 扫描速度=15 --objective both
         """,
     )
 
