@@ -65,29 +65,29 @@ GRAY = "#757575"
 GRID_COLOR = "#E0E0E0"
 
 # ============================================================
-# 字号 — 统一适中, 避免重叠
+# 字号 — 统一加大
 # ============================================================
-FONT_SIZE_LABEL = 15    #X/Y 轴标签
-FONT_SIZE_TICK = 14     # 刻度标签
-FONT_SIZE_LEGEND = 12   # 图例
-FONT_SIZE_CBAR = 12     # 颜色条
-FONT_SIZE_ANNOT = 10    # 注释
-FONT_SIZE_TITLE = 13    # 标题
+FONT_SIZE_LABEL = 18    #X/Y 轴标签
+FONT_SIZE_TICK = 16     # 刻度标签
+FONT_SIZE_LEGEND = 14   # 图例
+FONT_SIZE_CBAR = 14     # 颜色条
+FONT_SIZE_ANNOT = 12    # 注释
+FONT_SIZE_TITLE = 16    # 标题
 
 # 热图因行列多, 略小
-FONT_SIZE_TICK_HEAT = 11     # 热图刻度
-FONT_SIZE_ANNOT_HEAT = 8    #格子内数值
-FONT_SIZE_LABEL_HEAT = 12   # 轴标签
-FONT_SIZE_CBAR_HEAT = 10    # 颜色条
+FONT_SIZE_TICK_HEAT = 12     # 热图刻度
+FONT_SIZE_ANNOT_HEAT = 10    #格子内数值
+FONT_SIZE_LABEL_HEAT = 14    # 轴标签
+FONT_SIZE_CBAR_HEAT = 12     # 颜色条
 
 # SHAP图Y轴特征名多, 用小字号
-FONT_SIZE_SHAP_TICK = 11
+FONT_SIZE_SHAP_TICK = 12
 
 # 刻度标签
-FONT_SIZE_SHAP_LABEL = 12       # 轴标签
-FONT_SIZE_SHAP_LEGEND = 10      # 图例
-FONT_SIZE_SHAP_ANNOT = 9        # 注释
-FONT_SIZE_SHAP_CBAR = 10        # 颜色条
+FONT_SIZE_SHAP_LABEL = 14       # 轴标签
+FONT_SIZE_SHAP_LEGEND = 12      # 图例
+FONT_SIZE_SHAP_ANNOT = 10       # 注释
+FONT_SIZE_SHAP_CBAR = 12        # 颜色条
 
 # ============================================================
 # 画布尺寸 — 统一两种规格
