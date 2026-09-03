@@ -32,17 +32,77 @@ from src.metrics import load_model_bundle
 # 搜索空间定义（基于数据范围，合理外推±10%）
 # ============================================================
 SEARCH_SPACE = {
-    "激光功率":   (200, 6500),    # W
-    "扫描速度":   (1.0, 210),      # mm/s
-    "送粉速率":   (0.3, 320),      # g/min
-    "光斑直径":   (0.8, 8.0),      # mm
-    "离焦量":     (-2.5, 2.5),     # mm
+    "激光功率":   (1000, 3400),    # W      (数据 p5-p95 1200-3200 外推10%)
+    "扫描速度":   (1.0, 177.5),    # mm/s   (p5-p95 3.0-161.7 外推10%，下界钳制为正)
+    "送粉速率":   (0.5, 32.4),     # g/min  (p5-p95 0.64-29.5 外推10%，下界钳制为正)
+    "光斑直径":   (1.50, 6.50),    # mm     (p5-p95 1.92-6.08 外推10%)
+    "离焦量":     (-1.92, 1.92),   # mm     (p5-p95 -1.60-1.60 外推10%)
 }
 
 # 每个固定维度的离散点数
 FIXED_DIM_POINTS = 15
 # 每个固定点对应的自由参数采样数
 SAMPLES_PER_FIXED_POINT = 5000
+
+
+# 物理衍生特征约束（训练数据 p5-p95 范围）
+PHYSICAL_CONSTRAINTS = {
+    "线能量密度": (10.5, 696.1),    # J/mm   P / v
+    "面能量密度": (2.0, 205.1),     # J/mm²  P / (v * 光斑直径)
+    "粉末能量比": (48.0, 3034.6),   # W·min/g  P / 送粉速率
+}
+
+# 预测值物理合理区间
+CORROSION_LOWER_BOUND = 6.5e-07   # 数据最小值 1.29e-06 的 50%
+CORROSION_UPPER_BOUND = 1e-4      # 与清洗规则一致
+HARDNESS_LOWER_BOUND = 150.0      # 与清洗规则一致
+HARDNESS_UPPER_BOUND = 1800.0     # 与清洗规则一致
+
+
+def apply_physical_constraints(samples_df):
+    """
+    过滤不满足物理衍生特征约束的采样点（采样后、预测前调用）。
+    samples_df: 含5个工艺参数的DataFrame
+    返回: 过滤后的DataFrame
+    """
+    P = samples_df["激光功率"].values
+    v = samples_df["扫描速度"].values
+    spot = samples_df["光斑直径"].values
+    feed = samples_df["送粉速率"].values
+
+    v_safe = np.where(v == 0, 1e-6, v)
+    spot_safe = np.where(spot == 0, 1e-6, spot)
+    feed_safe = np.where(feed == 0, 1e-6, feed)
+
+    led = P / v_safe
+    aed = P / (v_safe * spot_safe)
+    per = P / feed_safe
+
+    mask = (
+        (led >= PHYSICAL_CONSTRAINTS["线能量密度"][0]) & (led <= PHYSICAL_CONSTRAINTS["线能量密度"][1])
+        & (aed >= PHYSICAL_CONSTRAINTS["面能量密度"][0]) & (aed <= PHYSICAL_CONSTRAINTS["面能量密度"][1])
+        & (per >= PHYSICAL_CONSTRAINTS["粉末能量比"][0]) & (per <= PHYSICAL_CONSTRAINTS["粉末能量比"][1])
+    )
+    return samples_df[mask].reset_index(drop=True)
+
+
+def filter_unphysical_predictions(result_df, corrosion_lower_bound=None):
+    """
+    剔除预测值超出物理合理区间的解（预测后调用）。
+    result_df: 含 硬度/腐蚀电流 列的DataFrame
+    corrosion_lower_bound: 腐蚀电流物理下限（A/cm2）。
+        默认用全局数据下限 CORROSION_LOWER_BOUND；
+        对 few-shot 优化可传入该材料数据最小值的 50%，避免误删真实量级。
+    返回: 过滤后的DataFrame
+    """
+    if corrosion_lower_bound is None:
+        corrosion_lower_bound = CORROSION_LOWER_BOUND
+    mask = (
+        (result_df["硬度"] >= HARDNESS_LOWER_BOUND) & (result_df["硬度"] <= HARDNESS_UPPER_BOUND)
+        & (result_df["腐蚀电流"] >= corrosion_lower_bound)
+        & (result_df["腐蚀电流"] <= CORROSION_UPPER_BOUND)
+    )
+    return result_df[mask].reset_index(drop=True)
 
 
 def get_typical_composition(df_clean):
@@ -188,6 +248,11 @@ def scan_single_dimension(fixed_param, hardness_bundle, corrosion_bundle,
         samples = latin_hypercube_sampling(free_bounds, n_samples, seed=base_seed + idx)
         samples[fixed_param] = fixed_val
 
+        # 物理约束过滤（采样后、预测前）
+        samples = apply_physical_constraints(samples)
+        if len(samples) == 0:
+            continue
+
         X = build_feature_matrix(samples[PROCESS_FEATURES], composition, hardness_bundle)
 
         hardness_pred = predict_hardness(X, hardness_bundle)
@@ -198,6 +263,12 @@ def scan_single_dimension(fixed_param, hardness_bundle, corrosion_bundle,
         result_df["腐蚀电流"] = corr_pred
         result_df["固定参数"] = fixed_param
         result_df["固定参数值"] = fixed_val
+
+        # 预测值合理性过滤（预测后）
+        result_df = filter_unphysical_predictions(result_df)
+        if len(result_df) == 0:
+            continue
+
         all_results.append(result_df)
 
     all_df = pd.concat(all_results, ignore_index=True)
@@ -251,7 +322,7 @@ def run_pareto_optimization(df_clean, model_dir=None, output_dir=None):
         pareto_df, samples_df = scan_single_dimension(
             param, hardness_bundle, corrosion_bundle, composition,
             base_seed=42 + param_idx * 10000
-        )  # type: ignore[misc]
+        )
         all_pareto_fronts[param] = pareto_df
         all_samples_list.append(samples_df)
 
