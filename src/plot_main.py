@@ -31,6 +31,7 @@ from src.plot_style import (
     FONT_SIZE_LABEL_HEAT, FONT_SIZE_CBAR_HEAT,
     FONT_SIZE_SHAP_TICK, FONT_SIZE_SHAP_LABEL,
     FONT_SIZE_SHAP_LEGEND, FONT_SIZE_SHAP_ANNOT, FONT_SIZE_SHAP_CBAR,
+    MARGIN_8x6, MARGIN_10x8,
 )
 
 import matplotlib.pyplot as plt
@@ -232,6 +233,7 @@ def plot_correlation_heatmap(data):
 
     # ---------- 3. 绘制热图 ----------
     fig, ax = plt.subplots(figsize=FIG_SIZE_HEATMAP)
+    fig.subplots_adjust(**MARGIN_10x8)
     # imshow 渲染矩阵, vmin/vmax 固定为 [-1, 1] (Pearson r 范围)
     im = ax.imshow(corr.values, cmap=cmap, vmin=-1, vmax=1, aspect="auto")
 
@@ -260,11 +262,11 @@ def plot_correlation_heatmap(data):
     cax = divider.append_axes("right", size="5%", pad=0.08)
     cbar = fig.colorbar(im, cax=cax)
     cbar.set_label("Pearson r", fontweight="bold", fontsize=FONT_SIZE_CBAR_HEAT)
-    cbar.ax.tick_params(labelsize=FONT_SIZE_CBAR_HEAT)
+    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK)
 
     # ---------- 7. 加粗黑色图框 ----------
     for spine in ax.spines.values():
-        spine.set_linewidth(2.5)
+        spine.set_linewidth(FRAME_WIDTH)
         spine.set_color("black")
 
     # ---------- 8. 保存 & 关闭 ----------

@@ -27,6 +27,7 @@ from src.plot_style import (
     FIG_SIZE, FIG_SIZE_WIDE, FIG_SIZE_HEATMAP,
     FONT_SIZE_LABEL, FONT_SIZE_TICK, FONT_SIZE_LEGEND,
     FONT_SIZE_CBAR, FONT_SIZE_ANNOT, FONT_SIZE_TITLE,
+    MARGIN_10x10,
 )
 from src.data import load_raw_data, clean_data
 from src.features import compute_derived_features
@@ -96,7 +97,7 @@ def plot_radar_chart(df_clean, df_feat):
     angles += angles[:1]  # 闭合
 
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-    fig.subplots_adjust(top=0.88, bottom=0.10, left=0.10, right=0.90)
+    fig.subplots_adjust(**MARGIN_10x10)
 
     group_colors = [CAT_COLORS[0], CAT_COLORS[3], CAT_COLORS[5]]
     group_labels = ["Cr<20%", "20-50%", "50-80%"]
@@ -161,7 +162,7 @@ def plot_parallel_coordinates(df_clean, df_feat):
     cbar = fig.colorbar(im, ax=ax, pad=0.02)
     cbar.set_label("Normalized feature value (0-1)",
                    fontweight='bold', fontsize=FONT_SIZE_CBAR)
-    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK - 1)
+    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK)
 
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
@@ -240,7 +241,7 @@ def plot_scatter_matrix(df_clean, df_feat):
     hardness = df["硬度"].values
 
     fig, axes = plt.subplots(len(cols), len(cols), figsize=(10, 10))
-    fig.subplots_adjust(hspace=0.12, wspace=0.12, bottom=0.15, left=0.15)
+    fig.subplots_adjust(**MARGIN_10x10, hspace=0.12, wspace=0.12)
 
     # 顺序色标: 浅棕→珊瑚→品红(起点足够深)
     seq_cmap = LinearSegmentedColormap.from_list(
@@ -283,7 +284,7 @@ def plot_scatter_matrix(df_clean, df_feat):
 
             # 边框
             for spine in ax.spines.values():
-                spine.set_linewidth(0.8)
+                spine.set_linewidth(FRAME_WIDTH)
                 spine.set_color('black')
 
             # 刻度数字: 底部行显示 x (斜体), 左侧列显示 y, 其余隐藏
@@ -292,10 +293,10 @@ def plot_scatter_matrix(df_clean, df_feat):
             if j > 0:
                 ax.set_yticklabels([])
             if i == len(cols) - 1:
-                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK - 4, rotation=30)
+                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK, rotation=30)
             else:
-                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK - 4)
-            ax.tick_params(axis='y', labelsize=FONT_SIZE_TICK - 4)
+                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK)
+            ax.tick_params(axis='y', labelsize=FONT_SIZE_TICK)
 
     # 统一放置 x 轴标签 (底部一行, 不旋转)
     for j in range(len(cols)):
@@ -303,7 +304,7 @@ def plot_scatter_matrix(df_clean, df_feat):
         bbox = ax_bottom.get_position()
         fig.text(bbox.x0 + bbox.width / 2, bbox.y0 - 0.04,
                  abbr[j], ha='center', va='top',
-                 fontsize=FONT_SIZE_TICK - 2, fontweight='bold')
+                 fontsize=FONT_SIZE_TICK, fontweight='bold')
 
     # 统一放置 y 轴标签 (左侧一列)
     for i in range(len(cols)):
@@ -311,7 +312,7 @@ def plot_scatter_matrix(df_clean, df_feat):
         bbox = ax_left.get_position()
         fig.text(bbox.x0 - 0.04, bbox.y0 + bbox.height / 2,
                  abbr[i], ha='right', va='center',
-                 fontsize=FONT_SIZE_TICK - 2, fontweight='bold',
+                 fontsize=FONT_SIZE_TICK, fontweight='bold',
                  rotation=90)
 
     save(fig, "01e_scatter_matrix", OUT_DIR)

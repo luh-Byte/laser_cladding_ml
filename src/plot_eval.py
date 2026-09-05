@@ -359,10 +359,10 @@ def plot_heatmap_matrix(df):
     cbar = fig.colorbar(im, ax=ax, shrink=1.0, pad=0.02)
     cbar.set_label("|Relative Error| (%)",
                    fontsize=FONT_SIZE_CBAR, fontweight='bold')
-    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK - 1)
+    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK)
 
     for spine in ax.spines.values():
-        spine.set_linewidth(2.0)
+        spine.set_linewidth(FRAME_WIDTH)
         spine.set_color('black')
 
     save(fig, "S31_heatmap_error_matrix", OUT_DIR)

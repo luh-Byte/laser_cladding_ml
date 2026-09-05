@@ -59,7 +59,7 @@ CAT_COLORS = PALETTE[2:]
 TRAIN_COLOR = "#728BDE"
 TEST_COLOR = "#E97A6F"
 
-FRAME_WIDTH = 2.0
+FRAME_WIDTH = 2.8
 DARK = "#212121"
 GRAY = "#757575"
 GRID_COLOR = "#E0E0E0"
@@ -68,33 +68,40 @@ GRID_COLOR = "#E0E0E0"
 # 字号 — 统一加大
 # ============================================================
 FONT_SIZE_LABEL = 22    #X/Y 轴标签
-FONT_SIZE_TICK = 18     # 刻度标签
+FONT_SIZE_TICK = 22     # 刻度标签（与轴标签统一）
 FONT_SIZE_LEGEND = 16   # 图例
 FONT_SIZE_CBAR = 16     # 颜色条
 FONT_SIZE_ANNOT = 14    # 注释
 FONT_SIZE_TITLE = 20    # 标题
 
-# 热图因行列多, 略小
-FONT_SIZE_TICK_HEAT = 14     # 热图刻度
-FONT_SIZE_ANNOT_HEAT = 12    #格子内数值
-FONT_SIZE_LABEL_HEAT = 16    # 轴标签
-FONT_SIZE_CBAR_HEAT = 14     # 颜色条
+# 热图刻度与轴标签统一
+FONT_SIZE_TICK_HEAT = 22     # 热图刻度
+FONT_SIZE_ANNOT_HEAT = 14    #格子内数值
+FONT_SIZE_LABEL_HEAT = 22    # 轴标签
+FONT_SIZE_CBAR_HEAT = 16     # 颜色条
 
-# SHAP图Y轴特征名多, 用小字号
-FONT_SIZE_SHAP_TICK = 14
+# SHAP图刻度与轴标签统一
+FONT_SIZE_SHAP_TICK = 22
 
 # 刻度标签
-FONT_SIZE_SHAP_LABEL = 16       # 轴标签
-FONT_SIZE_SHAP_LEGEND = 14      # 图例
-FONT_SIZE_SHAP_ANNOT = 12       # 注释
-FONT_SIZE_SHAP_CBAR = 14        # 颜色条
+FONT_SIZE_SHAP_LABEL = 22       # 轴标签
+FONT_SIZE_SHAP_LEGEND = 16      # 图例
+FONT_SIZE_SHAP_ANNOT = 14       # 注释
+FONT_SIZE_SHAP_CBAR = 16        # 颜色条
 
 # ============================================================
-# 画布尺寸 — 统一两种规格
+# 画布尺寸 — 统一三种规格
 # ============================================================
 FIG_SIZE = (8, 6)           # 所有常规图统一 8×6
 FIG_SIZE_WIDE = (14, 6)     # 双子图横向排列
 FIG_SIZE_HEATMAP = (10, 8)  # 热图稍大
+
+# ============================================================
+# 统一边距 — 同比例图使用相同边距，确保绘图区域一致
+# ============================================================
+MARGIN_8x6 = dict(left=0.13, right=0.97, top=0.95, bottom=0.11)
+MARGIN_10x8 = dict(left=0.10, right=0.96, top=0.95, bottom=0.10)
+MARGIN_10x10 = dict(left=0.08, right=0.96, top=0.95, bottom=0.08)
 
 # ============================================================
 # 全局 rcParams
@@ -108,6 +115,14 @@ plt.rcParams.update({
     'axes.titlesize': FONT_SIZE_TITLE,
     'axes.titleweight': 'bold',
     'axes.linewidth': FRAME_WIDTH,
+
+    # 统一子图边距（8×6常规图）
+    'figure.subplot.left': MARGIN_8x6['left'],
+    'figure.subplot.right': MARGIN_8x6['right'],
+    'figure.subplot.top': MARGIN_8x6['top'],
+    'figure.subplot.bottom': MARGIN_8x6['bottom'],
+    'figure.subplot.wspace': 0.3,
+    'figure.subplot.hspace': 0.3,
 
     'xtick.major.size': 5,
     'xtick.major.width': 1.5,
@@ -137,6 +152,24 @@ plt.rcParams.update({
     'savefig.pad_inches': 0.15,
     'savefig.facecolor': 'white',
 })
+
+
+# ============================================================
+# 统一绘图区域大小（解决不同标签长度导致绘图面积不一致的问题）
+# ============================================================
+def set_consistent_layout(fig):
+    """
+    强制统一子图边距，确保所有相同figsize的图拥有相同的绘图区域。
+    调用时机：plt.subplots() 之后、绘图之前。
+    """
+    fig.subplots_adjust(
+        left=0.12,    # 左边距（Y轴标签）
+        right=0.96,   # 右边距
+        top=0.94,     # 上边距（标题）
+        bottom=0.10,  # 下边距（X轴标签）
+        wspace=0.3,   # 子图间距
+        hspace=0.3,
+    )
 
 
 # ============================================================
