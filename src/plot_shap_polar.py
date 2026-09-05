@@ -20,7 +20,7 @@ from matplotlib.patches import Patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.plot_style import TNR_FONT, FONT_SIZE_LEGEND, FONT_SIZE_TICK
+from src.plot_style import TNR_FONT, FONT_SIZE_LEGEND, FONT_SIZE_TICK, FONT_SIZE_LABEL
 from src.config import OUTPUT_DIR
 
 # ============================================================
@@ -43,21 +43,21 @@ GROUP_COLORS = ["#E64B35", "#3C8DBC", "#00A087", "#E18727"]
 # 特征值发散色（红=高值，蓝=低值）
 FEATURE_CMAP_HEX = ["#2166AC", "#67A9CF", "#F7F7F7", "#EF8A62", "#B2182B"]
 
-# 中文特征名 → 英文标签（匹配 Times New Roman 字体）
+# 中文特征名 → 缩写标签（紧凑显示）
 FEATURE_NAME_MAP = {
-    "激光功率": "Laser Power",
-    "扫描速度": "Scan Speed",
-    "送粉速率": "Powder Feed",
-    "光斑直径": "Spot Diameter",
-    "离焦量": "Defocus",
+    "激光功率": "LP",
+    "扫描速度": "SS",
+    "送粉速率": "PFR",
+    "光斑直径": "SD",
+    "离焦量": "DF",
     "C": "C",
     "Cr": "Cr",
     "Fe": "Fe",
     "Mn": "Mn",
-    "线能量密度": "Line Energy",
-    "粉末能量比": "Powder Energy Ratio",
-    "碳当量": "C Eq.",
-    "镍当量": "Ni Eq.",
+    "线能量密度": "LED",
+    "粉末能量比": "PER",
+    "碳当量": "CE",
+    "镍当量": "NE",
 }
 
 OUT_DIR = os.path.join(OUTPUT_DIR, "figures")
@@ -107,7 +107,7 @@ def plot_shap_polar():
     cmap = LinearSegmentedColormap.from_list("feature", FEATURE_CMAP_HEX)
     norm = Normalize(0, 1)
 
-    fig, ax = plt.subplots(figsize=(14, 14), subplot_kw={"projection": "polar"})
+    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw={"projection": "polar"})
     fig.patch.set_facecolor("white")
     ax.patch.set_facecolor("#FBFBF6")  # 极浅米白背景
 
@@ -151,19 +151,16 @@ def plot_shap_polar():
             ax.scatter(theta, radii, c=norm_fv, cmap=cmap, norm=norm,
                        s=15, alpha=0.85, zorder=10, edgecolor="none")
 
-    # ---- 特征名标签（切线方向，左侧翻转保证全部正向可读）----
+    # ---- 特征名标签（切线方向，居中对齐扇区中心角）----
     for f in range(n_feat):
         angle = sector_centers[f]
         angle_deg = np.degrees(angle)
         rotation = angle_deg - 90
         if angle_deg > 180:
             rotation -= 180
-            ha = "right"
-        else:
-            ha = "left"
-        ax.text(angle, label_radius, feature_names[f], ha=ha, va="center",
-                fontsize=9, color="#333333", rotation=rotation,
-                rotation_mode="anchor", zorder=6)
+        ax.text(angle, label_radius, feature_names[f], ha="center", va="center",
+                fontsize=FONT_SIZE_LABEL, fontweight="bold", color="#333333",
+                rotation=rotation, rotation_mode="anchor", zorder=6)
 
     ax.set_ylim(0, frame_radius)
     ax.axis("off")
@@ -176,14 +173,13 @@ def plot_shap_polar():
     cbar.set_ticks([0, 0.25, 0.5, 0.75, 1.0])
     cbar.ax.tick_params(labelsize=FONT_SIZE_TICK - 2)
 
-    # ---- 分组图例（右中，与颜色条对齐成统一面板）----
+    # ---- 分组图例（右下角，无背景）----
     handles = [Patch(color=c, label=l) for c, l in zip(GROUP_COLORS, [g[0] for g in GROUPS])]
-    fig.legend(handles=handles, loc="center right", bbox_to_anchor=(0.975, 0.52),
-               fontsize=FONT_SIZE_LEGEND - 1, frameon=True, edgecolor="#888888",
-               framealpha=0.95, borderpad=0.6)
+    fig.legend(handles=handles, loc="lower right", bbox_to_anchor=(0.98, 0.02),
+               fontsize=FONT_SIZE_LEGEND - 1, frameon=False, ncol=1)
 
     os.makedirs(OUT_DIR, exist_ok=True)
-    out_path = os.path.join(OUT_DIR, "31_shap_polar.png")
+    out_path = os.path.join(OUT_DIR, "S32_shap_polar.png")
     fig.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print("已生成:", out_path)

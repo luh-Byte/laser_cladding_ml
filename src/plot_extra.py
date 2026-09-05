@@ -123,7 +123,7 @@ def plot_radar_chart(df_clean, df_feat):
     ax.set_title("Normalized Parameter Profile by Cr Group",
                  fontsize=FONT_SIZE_TITLE, fontweight='bold', pad=25)
 
-    save(fig, "14_radar_cr_group", OUT_DIR)
+    save(fig, "02c_radar_cr_group", OUT_DIR)
     plt.close(fig)
     print("  [14] 雷达图 — Cr分组归一化参数画像 ✓")
 
@@ -166,7 +166,7 @@ def plot_parallel_coordinates(df_clean, df_feat):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "15_parallel_coordinates", OUT_DIR)
+    save(fig, "01d_parallel_coordinates", OUT_DIR)
     plt.close(fig)
     print("  [15] 标准化特征热力图 — 按硬度排序 ✓")
 
@@ -206,16 +206,17 @@ def plot_contour_heatmap(df_clean, df_feat):
     ax.scatter(x, y, c=z, cmap=seq_cmap, s=30, edgecolors='black',
               linewidths=0.5, zorder=5, alpha=0.85)
 
-    cbar = fig.colorbar(cf, ax=ax, shrink=0.8, pad=0.02)
+    cbar = fig.colorbar(cf, ax=ax, shrink=1.0, pad=0.02)
     cbar.set_label("Hardness (HV)", fontweight='bold', fontsize=FONT_SIZE_CBAR)
-    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK - 1)
+    cbar.ax.tick_params(labelsize=FONT_SIZE_TICK)
 
     ax.set_xlabel("Laser Power (W)", fontsize=FONT_SIZE_LABEL, fontweight='bold')
     ax.set_ylabel("Scan Speed (mm/s)", fontsize=FONT_SIZE_LABEL, fontweight='bold')
 
+    create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "16_contour_lp_ss", OUT_DIR)
+    save(fig, "02d_contour_lp_ss", OUT_DIR)
     plt.close(fig)
     print("  [16] 等高线热力图 — LP×SS 硬度响应面 ✓")
 
@@ -229,13 +230,17 @@ def plot_scatter_matrix(df_clean, df_feat):
     df = df_feat.copy()
     cols = ["激光功率", "Cr", "线能量密度", "碳当量", "硬度", "腐蚀电流"]
     abbr = [FEATURE_CN_TO_ABBR[c] for c in cols]
+    # 腐蚀电流标注单位
+    abbr[cols.index("腐蚀电流")] = "IC (µA/cm²)"
 
     df_plot = df[cols].copy()
+    # 腐蚀电流转为 µA/cm², 消除科学计数法 (在列重命名前)
+    df_plot["腐蚀电流"] = df_plot["腐蚀电流"] * 1e6
     df_plot.columns = abbr
     hardness = df["硬度"].values
 
     fig, axes = plt.subplots(len(cols), len(cols), figsize=(10, 10))
-    fig.subplots_adjust(hspace=0.12, wspace=0.12)
+    fig.subplots_adjust(hspace=0.12, wspace=0.12, bottom=0.15, left=0.15)
 
     # 顺序色标: 浅棕→珊瑚→品红(起点足够深)
     seq_cmap = LinearSegmentedColormap.from_list(
@@ -281,19 +286,35 @@ def plot_scatter_matrix(df_clean, df_feat):
                 spine.set_linewidth(0.8)
                 spine.set_color('black')
 
-            # 标签
-            if i == len(cols) - 1:
-                ax.set_xlabel(abbr[j], fontsize=FONT_SIZE_TICK, fontweight='bold')
-                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK - 2)
-            if j == 0:
-                ax.set_ylabel(abbr[i], fontsize=FONT_SIZE_TICK, fontweight='bold')
-                ax.tick_params(axis='y', labelsize=FONT_SIZE_TICK - 2)
+            # 刻度数字: 底部行显示 x (斜体), 左侧列显示 y, 其余隐藏
             if i < len(cols) - 1:
                 ax.set_xticklabels([])
             if j > 0:
                 ax.set_yticklabels([])
+            if i == len(cols) - 1:
+                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK - 4, rotation=30)
+            else:
+                ax.tick_params(axis='x', labelsize=FONT_SIZE_TICK - 4)
+            ax.tick_params(axis='y', labelsize=FONT_SIZE_TICK - 4)
 
-    save(fig, "17_scatter_matrix", OUT_DIR)
+    # 统一放置 x 轴标签 (底部一行, 不旋转)
+    for j in range(len(cols)):
+        ax_bottom = axes[len(cols) - 1, j]
+        bbox = ax_bottom.get_position()
+        fig.text(bbox.x0 + bbox.width / 2, bbox.y0 - 0.04,
+                 abbr[j], ha='center', va='top',
+                 fontsize=FONT_SIZE_TICK - 2, fontweight='bold')
+
+    # 统一放置 y 轴标签 (左侧一列)
+    for i in range(len(cols)):
+        ax_left = axes[i, 0]
+        bbox = ax_left.get_position()
+        fig.text(bbox.x0 - 0.04, bbox.y0 + bbox.height / 2,
+                 abbr[i], ha='right', va='center',
+                 fontsize=FONT_SIZE_TICK - 2, fontweight='bold',
+                 rotation=90)
+
+    save(fig, "01e_scatter_matrix", OUT_DIR)
     plt.close(fig)
     print("  [17] 散点矩阵图 — 关键变量两两关系 ✓")
 
@@ -351,7 +372,7 @@ def plot_ridge_plot(df_clean, df_feat):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "18_ridge_hardness_power", OUT_DIR)
+    save(fig, "02e_ridge_hardness_power", OUT_DIR)
     plt.close(fig)
     print("  [18] 山脊图 — 功率区间硬度分布密度 ✓")
 
@@ -404,7 +425,7 @@ def plot_andrews_curve(df_clean, df_feat):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "19_andrews_curve", OUT_DIR)
+    save(fig, "02f_andrews_curve", OUT_DIR)
     plt.close(fig)
     print("  [19] 箱线图 — 不同功率区间的硬度分布 ✓")
 

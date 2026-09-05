@@ -79,7 +79,7 @@ def plot_hardness_loo_comparison(df):
 
     # 趋势约束峰值标注
     if peak_trend == peak_actual:
-        ax.annotate(f'✓ {powers[peak_trend]}W',
+        ax.annotate(f'Matched: {powers[peak_trend]}W',
                     xy=(powers[peak_trend], trend[peak_trend]),
                     xytext=(powers[peak_trend] - 200, trend[peak_trend] - 15),
                     fontsize=FONT_SIZE_ANNOT, fontweight='bold', color=COLOR_TREND,
@@ -100,7 +100,7 @@ def plot_hardness_loo_comparison(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "27_hardness_loo_comparison", OUT_DIR)
+    save(fig, "06a_hardness_loo_comparison", OUT_DIR)
     plt.close(fig)
     print("  [27] 硬度LOO对比 — 原始 vs 趋势约束 ✓")
 
@@ -142,14 +142,14 @@ def plot_corrosion_loo_comparison(df):
     valley_trend = np.argmin(trend)
     ax.annotate(f'Valley: {powers[valley_actual]}W',
                 xy=(powers[valley_actual], actual_p[valley_actual]),
-                xytext=(powers[valley_actual] - 250, actual_p[valley_actual] + 0.8),
+                xytext=(powers[valley_actual] - 250, actual_p[valley_actual] - 0.3),
                 fontsize=FONT_SIZE_ANNOT, fontweight='bold', color=COLOR_ACTUAL,
                 arrowprops=dict(arrowstyle='->', color=COLOR_ACTUAL, lw=1.5))
 
     if valley_trend == valley_actual:
-        ax.annotate(f'✓ {powers[valley_trend]}W',
+        ax.annotate(f'Matched: {powers[valley_trend]}W',
                     xy=(powers[valley_trend], trend_p[valley_trend]),
-                    xytext=(powers[valley_trend] - 250, trend_p[valley_trend] + 1.0),
+                    xytext=(powers[valley_trend] + 100, trend_p[valley_trend] + 1.0),
                     fontsize=FONT_SIZE_ANNOT, fontweight='bold', color=COLOR_TREND,
                     arrowprops=dict(arrowstyle='->', color=COLOR_TREND, lw=1.5))
 
@@ -169,7 +169,7 @@ def plot_corrosion_loo_comparison(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "28_corrosion_loo_comparison", OUT_DIR)
+    save(fig, "06b_corrosion_loo_comparison", OUT_DIR)
     plt.close(fig)
     print("  [28] 腐蚀LOO对比 — 原始 vs 趋势约束 ✓")
 
@@ -240,14 +240,24 @@ def plot_r2_comparison(df):
                     edgecolor='black', linewidth=0.8, label='Trend-Constrained', zorder=3)
 
     for bar, val in zip(bars1, orig_vals):
-        y_text = val + 0.05 if val > 0 else val - 0.15
+        if val > 0:
+            y_text = val - 0.08
+            va = 'top'
+        else:
+            y_text = val + 0.08
+            va = 'bottom'
         ax.text(bar.get_x() + bar.get_width()/2, y_text,
-                 f"{val:.3f}", ha='center', va='bottom' if val > 0 else 'top',
+                 f"{val:.3f}", ha='center', va=va,
                  fontsize=FONT_SIZE_ANNOT, fontweight='bold')
     for bar, val in zip(bars2, trend_vals):
-        y_text = val + 0.05 if val > 0 else val - 0.15
+        if val > 0:
+            y_text = val - 0.08
+            va = 'top'
+        else:
+            y_text = val + 0.08
+            va = 'bottom'
         ax.text(bar.get_x() + bar.get_width()/2, y_text,
-                 f"{val:.3f}", ha='center', va='bottom' if val > 0 else 'top',
+                 f"{val:.3f}", ha='center', va=va,
                  fontsize=FONT_SIZE_ANNOT, fontweight='bold')
 
     ax.set_xticks(x)
@@ -264,7 +274,7 @@ def plot_r2_comparison(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "29_r2_comparison", OUT_DIR)
+    save(fig, "06c_r2_comparison", OUT_DIR)
     plt.close(fig)
     print("  [29] R²对比柱状图 — 趋势约束改善 ✓")
 
@@ -293,16 +303,18 @@ def plot_accuracy_trend(df):
         if isinstance(val, float):
             label = f"{val:.1f}"
         else:
-            label = "✓" if val == 1 else "✗"
-        ax.text(bar.get_x() + bar.get_width()/2, val + 0.05,
+            label = f"{val}"
+        y_pos = val + 0.8 if isinstance(val, (int, float)) and val < 10 else val + 2
+        ax.text(bar.get_x() + bar.get_width()/2, y_pos,
                 label, ha='center', va='bottom',
                 fontsize=FONT_SIZE_ANNOT, fontweight='bold')
     for bar, val in zip(bars_trend, trend2):
         if isinstance(val, float):
             label = f"{val:.1f}"
         else:
-            label = "✓" if val == 1 else "✗"
-        ax.text(bar.get_x() + bar.get_width()/2, val + 0.05,
+            label = f"{val}"
+        y_pos = val + 0.8 if isinstance(val, (int, float)) and val < 10 else val + 2
+        ax.text(bar.get_x() + bar.get_width()/2, y_pos,
                 label, ha='center', va='bottom',
                 fontsize=FONT_SIZE_ANNOT, fontweight='bold')
 
@@ -316,7 +328,7 @@ def plot_accuracy_trend(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "30_accuracy_trend", OUT_DIR)
+    save(fig, "06d_accuracy_trend", OUT_DIR)
     plt.close(fig)
     print("  [30] 精度与趋势匹配 — 趋势约束改善 ✓")
 

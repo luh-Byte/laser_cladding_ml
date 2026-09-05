@@ -31,8 +31,15 @@ from src.plot_style import (
 import matplotlib.pyplot as plt
 
 from src.config import OUTPUT_DIR
-OUT_DIR = os.path.join(OUTPUT_DIR, "figures", "shap")
+OUT_DIR = os.path.join(OUTPUT_DIR, "figures")
 os.makedirs(OUT_DIR, exist_ok=True)
+
+# SHAP图编号计数器 (S01-S24)
+_shap_counter = [0]
+def _shap_name(base_name):
+    """生成 S01-S24 前缀的文件名"""
+    _shap_counter[0] += 1
+    return f"S{_shap_counter[0]:02d}_{base_name}"
 
 FEATURE_NAMES = [
     "Laser Power", "Scan Speed", "Powder Feed Rate", "Spot Diameter", "Defocus",
@@ -154,7 +161,7 @@ def plot_beeswarm(data):
         style_ax(ax, grid=False, right_top_ticks=False,
                  tick_labelsize=FONT_SIZE_SHAP_TICK)
 
-        save(fig, f"beeswarm_{name}", OUT_DIR)
+        save(fig, _shap_name(f"beeswarm_{name}"), OUT_DIR)
         plt.close(fig)
 
     print("  [P0] Beeswarm x 4 done")
@@ -232,7 +239,7 @@ def plot_waterfall(data):
             style_ax(ax, grid=False, right_top_ticks=False,
                      tick_labelsize=FONT_SIZE_SHAP_TICK)
 
-            save(fig, f"waterfall_{sample_id}_{target}", OUT_DIR)
+            save(fig, _shap_name(f"wf_{sample_id}_{target}"), OUT_DIR)
             plt.close(fig)
 
     print("  [P0] Waterfall x 8 done")
@@ -295,7 +302,7 @@ def plot_dependence(data):
         create_gradient_rect(ax)
         style_ax(ax, grid=False, right_top_ticks=False)
 
-        save(fig, f"dependence_Hardness_{feat_en}", OUT_DIR)
+        save(fig, _shap_name(f"dep_Hardness_{feat_en}"), OUT_DIR)
         plt.close(fig)
 
     for i, feat_cn in enumerate(corr_top5_cn):
@@ -338,7 +345,7 @@ def plot_dependence(data):
         create_gradient_rect(ax)
         style_ax(ax, grid=False, right_top_ticks=False)
 
-        save(fig, f"dependence_Corrosion_{feat_en}", OUT_DIR)
+        save(fig, _shap_name(f"dep_Corrosion_{feat_en}"), OUT_DIR)
         plt.close(fig)
 
     print("  [P1] Dependence x 10 done")
@@ -384,7 +391,7 @@ def plot_importance_comparison(data):
         style_ax(ax, grid=False, right_top_ticks=False,
                  tick_labelsize=FONT_SIZE_SHAP_TICK)
 
-        save(fig, f"importance_compare_{title_name}", OUT_DIR)
+        save(fig, _shap_name(f"importance_compare_{title_name}"), OUT_DIR)
         plt.close(fig)
 
     print("  [P1] Importance comparison x 2 done")
@@ -407,20 +414,20 @@ def main():
     print(f"  Few-shot: {data['shap_fs_hv'].shape}")
     print()
 
-    print("[P0] Beeswarm Summary (4 figures)")
+    print("[P0] Importance Comparison (2 figures) → S01-S02")
+    plot_importance_comparison(data)
+    print()
+
+    print("[P0] Beeswarm Summary (4 figures) → S03-S06")
     plot_beeswarm(data)
     print()
 
-    print("[P0] Waterfall Plot (8 figures)")
-    plot_waterfall(data)
-    print()
-
-    print("[P1] Top5 Dependence Plot (10 figures)")
+    print("[P1] Top5 Dependence Plot (10 figures) → S07-S16")
     plot_dependence(data)
     print()
 
-    print("[P1] Importance Comparison (2 figures)")
-    plot_importance_comparison(data)
+    print("[P1] Waterfall Plot (8 figures) → S17-S24")
+    plot_waterfall(data)
     print()
 
     files = sorted([f for f in os.listdir(OUT_DIR) if f.endswith(".png")])

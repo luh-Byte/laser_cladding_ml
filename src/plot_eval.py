@@ -96,7 +96,7 @@ def plot_dumbbell_hardness(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "20_dumbbell_hardness", OUT_DIR)
+    save(fig, "S25_dumbbell_hardness", OUT_DIR)
     plt.close(fig)
     print("  [20] 哑铃图 — 硬度 实测vs预测 ✓")
 
@@ -154,7 +154,7 @@ def plot_dumbbell_corrosion(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "21_dumbbell_corrosion", OUT_DIR)
+    save(fig, "S26_dumbbell_corrosion", OUT_DIR)
     plt.close(fig)
     print("  [21] 哑铃图 — 腐蚀 实测vs预测 ✓")
 
@@ -190,7 +190,7 @@ def plot_area_diff_hardness(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "22_area_diff_hardness", OUT_DIR)
+    save(fig, "S27_area_diff_hardness", OUT_DIR)
     plt.close(fig)
     print("  [22] 面积差图 — 硬度趋势 ✓")
 
@@ -227,7 +227,7 @@ def plot_area_diff_corrosion(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "23_area_diff_corrosion", OUT_DIR)
+    save(fig, "S28_area_diff_corrosion", OUT_DIR)
     plt.close(fig)
     print("  [23] 面积差图 — 腐蚀趋势 ✓")
 
@@ -273,7 +273,7 @@ def plot_lollipop_hardness(df):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "24_lollipop_hardness", OUT_DIR)
+    save(fig, "S29_lollipop_hardness", OUT_DIR)
     plt.close(fig)
     print("  [24] 棒棒糖图 — 硬度误差 ✓")
 
@@ -313,13 +313,13 @@ def plot_lollipop_corrosion(df):
         Patch(facecolor=COLOR_POS, edgecolor='black', label='Overestimate'),
         Patch(facecolor=COLOR_NEG, edgecolor='black', label='Underestimate'),
     ]
-    ax.legend(handles=legend_elements, loc='upper right',
+    ax.legend(handles=legend_elements, loc='upper left',
               fontsize=FONT_SIZE_LEGEND, frameon=False)
 
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "25_lollipop_corrosion", OUT_DIR)
+    save(fig, "S30_lollipop_corrosion", OUT_DIR)
     plt.close(fig)
     print("  [25] 棒棒糖图 — 腐蚀误差 ✓")
 
@@ -356,7 +356,7 @@ def plot_heatmap_matrix(df):
     ax.set_title("Relative Error Matrix (%)",
                  fontsize=FONT_SIZE_TITLE, fontweight='bold', pad=12)
 
-    cbar = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
+    cbar = fig.colorbar(im, ax=ax, shrink=1.0, pad=0.02)
     cbar.set_label("|Relative Error| (%)",
                    fontsize=FONT_SIZE_CBAR, fontweight='bold')
     cbar.ax.tick_params(labelsize=FONT_SIZE_TICK - 1)
@@ -365,7 +365,7 @@ def plot_heatmap_matrix(df):
         spine.set_linewidth(2.0)
         spine.set_color('black')
 
-    save(fig, "26_heatmap_error_matrix", OUT_DIR)
+    save(fig, "S31_heatmap_error_matrix", OUT_DIR)
     plt.close(fig)
     print("  [26] 热力矩阵 — 功率×目标相对误差 ✓")
 

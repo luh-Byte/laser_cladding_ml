@@ -250,7 +250,7 @@ def plot_correlation_heatmap(data):
             val = corr.values[i, j]
             color = "white" if abs(val) > 0.65 else "black"
             ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                    fontsize=9, color=color,
+                    fontsize=11, color=color,
                     fontweight="bold")
 
     # ---------- 6. 添加 Colorbar ----------
@@ -268,7 +268,7 @@ def plot_correlation_heatmap(data):
         spine.set_color("black")
 
     # ---------- 8. 保存 & 关闭 ----------
-    save(fig, "01_correlation_heatmap", OUT_DIR)
+    save(fig, "01a_correlation_heatmap", OUT_DIR)
     plt.close(fig)
     print("  [1/13] 相关性矩阵热图 ✓")
 
@@ -334,11 +334,10 @@ def plot_model_comparison_bar(data):
 
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
-    ax.set_ylim(min(0, min(v[0] for v in hv_r2) - 0.1),
-                max(v[0] for v in hv_r2) + 0.15)
+    ax.set_ylim(0.0, 0.9)
     ax.set_xlim(-0.5, len(models) - 0.5)
 
-    save(fig, "02_model_comparison_bar", OUT_DIR)
+    save(fig, "03a_model_comparison_bar", OUT_DIR)
     plt.close(fig)
     print("  [2/13] 分组柱状图 — 模型性能对比 ✓")
 
@@ -370,7 +369,7 @@ def plot_pca_scatter(data):
                          c=hardness, cmap=seq_cmap, s=50,
                          edgecolors="black", linewidths=0.5, alpha=0.85, zorder=3)
 
-    cbar = fig.colorbar(scatter, ax=ax, shrink=0.8, pad=0.02)
+    cbar = fig.colorbar(scatter, ax=ax, shrink=1.0, pad=0.02)
     cbar.set_label("Hardness (HV)", fontweight="bold", fontsize=FONT_SIZE_CBAR)
     cbar.ax.tick_params(labelsize=FONT_SIZE_TICK)
 
@@ -383,7 +382,7 @@ def plot_pca_scatter(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "03_pca_scatter", OUT_DIR)
+    save(fig, "01b_pca_scatter", OUT_DIR)
     plt.close(fig)
     print("  [3/13] 聚类散点图 — PCA降维 ✓")
 
@@ -449,7 +448,7 @@ def plot_violin_by_cr(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "04_violin_by_cr", OUT_DIR)
+    save(fig, "02a_violin_by_cr", OUT_DIR)
     plt.close(fig)
     print("  [4/13] 箱线+散点图 — 硬度按Cr分组 ✓")
 
@@ -474,7 +473,9 @@ def plot_stacked_composition(data):
     # ---------- 1. 数据准备 ----------
     df = data["df_clean"].copy()                          # 获取清洗后的原始数据
     elements = ["C", "Cr", "Si", "Ni", "Fe", "Mn", "Mo"]  # 需要统计的 7 种元素
-    elem_colors = CAT_COLORS[:7]                           # 每种元素分配一个颜色
+    # 堆叠图专属配色: 暖→冷渐变, 保证相邻段对比鲜明
+    elem_colors = ["#E97A6F", "#E8156E", "#F9A825", "#00BEB3",
+                   "#728BDE", "#834BD4", "#E246C9"]
 
     # 按 Cr 含量将样本分为三组 (wt%)
     df["Cr_group"] = pd.cut(df["Cr"], bins=[0, 20, 50, 80],
@@ -485,64 +486,69 @@ def plot_stacked_composition(data):
 
     # ---------- 2. 创建画布 ----------
     fig, ax = plt.subplots(figsize=FIG_SIZE)
-    ax.set_xlim(-0.5, n_groups - 0.3)   # 横向留出边距
+    ax.set_xlim(-0.5, n_groups - 0.3)
+    bar_width = 0.6
 
     # ---------- 3. 绘制堆叠柱状图 ----------
-    bottom = np.zeros(n_groups)   # 初始化每组柱子的底部高度 (从 0 开始)
+    bottom = np.zeros(n_groups)
     for i, elem in enumerate(elements):
-        # 3a. 获取当前元素在三组中的平均含量
         vals = grouped[elem].values
 
-        # 3b. 绘制原始柱 (zorder=3), 后续会被 3D fill 覆盖
         bars = ax.bar(range(n_groups), vals, bottom=bottom,
                       color=elem_colors[i], edgecolor="black", linewidth=0.8,
-                      label=elem, width=0.6, zorder=3)
-
-        # 3c. 应用 3D 渐变填充 (水平方向: 左右深→中间浅), 替换原始柱的视觉
+                      label=elem, width=bar_width, zorder=3)
         _apply_3d_fill(ax, bars, elem_colors[i], zorder=3)
 
-        # 3d. 为每个柱段添加黑色边框 (Rectangle), 使堆叠层次分明
         for j in range(n_groups):
-            x = bars[j].get_x()       # 柱段左下角 x 坐标
-            w = bars[j].get_width()   # 柱段宽度
-            y = bars[j].get_y()       # 柱段底部 y 坐标 (堆叠后的起点)
-            h = bars[j].get_height()  # 柱段高度 (当前元素的含量值)
+            x, w, y, h = bars[j].get_x(), bars[j].get_width(), bars[j].get_y(), bars[j].get_height()
             if h > 0 and not np.isnan(h):
                 ax.add_patch(Rectangle((x, y), w, h, fill=False,
-                                           edgecolor="black", linewidth=0.8,
-                                           zorder=5))
+                                       edgecolor="black", linewidth=0.8, zorder=5))
 
-        # 3e. 在柱段中心标注数值 (仅标注含量 > 3 wt% 的元素, 避免拥挤)
+        # v > 3 标注在柱段中心
         for j, v in enumerate(vals):
             if v > 3:
-                ax.text(j, bottom[j] + v/2, f"{v:.1f}",
+                ax.text(j, bottom[j] + v / 2, f"{v:.1f}",
                         ha="center", va="center", fontsize=FONT_SIZE_ANNOT,
                         color="black", fontweight="bold")
 
-        # 3f. 累加当前元素高度, 作为下一层元素的底部起点
         bottom += vals
+
+    # ---------- 3g. 薄层元素: 数字写在对应颜色旁边 ----------
+    thin_threshold = 3.0
+    # 元素专属 y 偏移 (正=上移, 负=下移), 微调避免重叠
+    elem_y_offset = {"C": 1.5, "Mn": -1.5}
+    for j in range(n_groups):
+        bar_right = j + bar_width / 2
+        for i, elem in enumerate(elements):
+            h_val = grouped[elem].values[j]
+            if h_val > 0 and not np.isnan(h_val) and h_val <= thin_threshold:
+                y_bottom = sum(grouped[elements[k]].values[j] for k in range(i))
+                y_center = y_bottom + h_val / 2 + elem_y_offset.get(elem, 0)
+                ax.text(bar_right + 0.05, y_center, f"{h_val:.1f}",
+                        ha="left", va="center", fontsize=FONT_SIZE_ANNOT - 2,
+                        fontweight="bold", color=elem_colors[i], zorder=10)
 
     # ---------- 4. 坐标轴与标签 ----------
     ax.set_xticks(range(n_groups))
     ax.set_xticklabels(grouped.index, fontsize=FONT_SIZE_TICK)
     ax.set_ylabel("Content (wt%)", fontsize=FONT_SIZE_LABEL, fontweight="bold")
 
-    # ---------- 5. 图例修复 ----------
-    # 3D fill 把原始 bar 隐藏了, 默认图例无法获取颜色, 因此用 Patch 代理重建
+    # ---------- 5. 图例 (框内左上角) ----------
     from matplotlib.patches import Patch
     legend_handles = [Patch(facecolor=elem_colors[i], edgecolor="black",
                             linewidth=0.8, label=elem) for i, elem in enumerate(elements)]
-    ax.legend(handles=legend_handles, fontsize=FONT_SIZE_LEGEND,
-              loc="upper center", bbox_to_anchor=(0.5, 0.99),   # 顶部居中横排
-              ncol=len(elements), frameon=False,                # 无框, 7 列布局
-              handletextpad=0.3, columnspacing=0.8)
-    ax.set_ylim(0, 110)
+    ax.legend(handles=legend_handles, fontsize=FONT_SIZE_LEGEND - 2,
+              loc="upper center", bbox_to_anchor=(0.5, 1.0),
+              ncol=len(elements), frameon=False,
+              handletextpad=0.1, columnspacing=0.4)
+    ax.set_ylim(0, 115)
 
     # ---------- 6. 统一样式 & 保存 ----------
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "05_stacked_composition", OUT_DIR)
+    save(fig, "01c_stacked_composition", OUT_DIR)
     plt.close(fig)
     print("  [5/13] 堆叠柱状图 — 材料成分占比 ✓")
 
@@ -565,10 +571,6 @@ def plot_pareto_bubble(data):
                c=CAT_COLORS[3], alpha=0.55, edgecolors="black",
                linewidths=0.8, label="Global Pareto", zorder=4)
 
-    # 先确定Local Best点
-    best_local = pl.iloc[pl["硬度"].argmax()]
-    best_local_power = best_local['激光功率']
-
     # 功率标注: 仅标注与最近邻距离>0.1的点, 密集区域不标
     pg_x = (pg["腐蚀电流"].values * 1e7).astype(float)
     pg_y = pg["硬度"].values.astype(float)
@@ -586,13 +588,6 @@ def plot_pareto_bubble(data):
                     fontsize=FONT_SIZE_ANNOT, color=DARK,
                     arrowprops=dict(arrowstyle="-", color=GRAY, lw=0.5))
 
-    ax.annotate(f"Local Best: {best_local['硬度']:.0f}HV, {best_local['激光功率']:.0f}W",
-                xy=(best_local["腐蚀电流"] * 1e7, best_local["硬度"]),
-                xytext=(-160, 5), textcoords="offset points",
-                fontsize=FONT_SIZE_ANNOT, color=CAT_COLORS[5],
-                fontweight="bold",
-                arrowprops=dict(arrowstyle="->", color=CAT_COLORS[5], lw=1.5))
-
     ax.set_xlabel(r"Corrosion Current ($\times 10^{-7}$ A/cm$^2$)",
                  fontsize=FONT_SIZE_LABEL, fontweight="bold")
     ax.set_ylabel("Hardness (HV)", fontsize=FONT_SIZE_LABEL, fontweight="bold")
@@ -601,7 +596,7 @@ def plot_pareto_bubble(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "06_pareto_bubble", OUT_DIR)
+    save(fig, "04_pareto_bubble", OUT_DIR)
     plt.close(fig)
     print("  [6/13] 散点气泡图 — 帕累托前沿 ✓")
 
@@ -642,7 +637,7 @@ def plot_predicted_vs_actual_hardness(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "07_predicted_vs_actual_hardness", OUT_DIR)
+    save(fig, "03b_predicted_vs_actual_hardness", OUT_DIR)
     plt.close(fig)
     print("  [7/13] 相关散点图 — 硬度预测vs实测 ✓")
 
@@ -685,7 +680,7 @@ def plot_predicted_vs_actual_corrosion(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "08_predicted_vs_actual_corrosion", OUT_DIR)
+    save(fig, "03c_predicted_vs_actual_corrosion", OUT_DIR)
     plt.close(fig)
     print("  [8/13] 相关散点图 — 腐蚀预测vs实测 ✓")
 
@@ -752,7 +747,7 @@ def plot_hardness_power_trend(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "09_hardness_power_trend", OUT_DIR)
+    save(fig, "02b_hardness_power_trend", OUT_DIR)
     plt.close(fig)
     print("  [9/13] 趋势图 — 硬度vs功率 ✓")
 
@@ -803,7 +798,7 @@ def plot_error_boxplot_hardness(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "10_error_boxplot_hardness", OUT_DIR)
+    save(fig, "03d_error_boxplot_hardness", OUT_DIR)
     plt.close(fig)
     print("  [10/13] 箱线图 — 硬度模型误差 ✓")
 
@@ -854,7 +849,7 @@ def plot_error_boxplot_corrosion(data):
     create_gradient_rect(ax)
     style_ax(ax, grid=False, right_top_ticks=False)
 
-    save(fig, "11_error_boxplot_corrosion", OUT_DIR)
+    save(fig, "03e_error_boxplot_corrosion", OUT_DIR)
     plt.close(fig)
     print("  [11/13] 箱线图 — 腐蚀模型误差 ✓")
 
@@ -902,7 +897,7 @@ def plot_shap_bubble_hardness(data):
     style_ax(ax, grid=False, right_top_ticks=False,
              tick_labelsize=FONT_SIZE_SHAP_TICK)
 
-    save(fig, "12_shap_bubble_hardness", OUT_DIR)
+    save(fig, "05a_shap_bubble_hardness", OUT_DIR)
     plt.close(fig)
     print("  [12/13] 差异气泡图 — SHAP硬度重要性 ✓")
 
@@ -950,7 +945,7 @@ def plot_shap_bubble_corrosion(data):
     style_ax(ax, grid=False, right_top_ticks=False,
              tick_labelsize=FONT_SIZE_SHAP_TICK)
 
-    save(fig, "13_shap_bubble_corrosion", OUT_DIR)
+    save(fig, "05b_shap_bubble_corrosion", OUT_DIR)
     plt.close(fig)
     print("  [13/13] 差异气泡图 — SHAP腐蚀重要性 ✓")
 
