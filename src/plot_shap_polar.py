@@ -179,10 +179,11 @@ def plot_shap_polar():
                fontsize=FONT_SIZE_LEGEND - 1, frameon=False, ncol=1)
 
     os.makedirs(OUT_DIR, exist_ok=True)
-    out_path = os.path.join(OUT_DIR, "S32_shap_polar.png")
-    fig.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
+    out_base = os.path.join(OUT_DIR, "S32_shap_polar")
+    fig.savefig(f"{out_base}.png", dpi=300, bbox_inches="tight", facecolor="white")
+    fig.savefig(f"{out_base}.pdf", format='pdf', bbox_inches="tight", facecolor="white")
     plt.close(fig)
-    print("已生成:", out_path)
+    print("已生成:", f"{out_base}.png + .pdf")
 
 
 if __name__ == "__main__":
