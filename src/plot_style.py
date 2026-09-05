@@ -253,11 +253,17 @@ def save(fig, name, out_dir=None):
     os.makedirs(out_dir, exist_ok=True)
     fig.canvas.draw()
     _make_all_text_bold(fig)
+    # 强制重置边距，确保colorbar等不侵占绘图区域
+    w, h = fig.get_size_inches()
+    if abs(w - 8) < 0.5 and abs(h - 6) < 0.5:
+        fig.subplots_adjust(**MARGIN_8x6)
+    elif abs(w - 10) < 0.5 and abs(h - 8) < 0.5:
+        fig.subplots_adjust(**MARGIN_10x8)
+    elif abs(w - 10) < 0.5 and abs(h - 10) < 0.5:
+        fig.subplots_adjust(**MARGIN_10x10)
     base = str(name).rsplit('.', 1)[0]
-    # PNG
     fig.savefig(f"{out_dir}/{base}.png", dpi=300, bbox_inches='tight',
                 facecolor='white', edgecolor='none', pad_inches=0.15)
-    # PDF (矢量，AI可编辑)
     fig.savefig(f"{out_dir}/{base}.pdf", format='pdf', bbox_inches='tight',
                 facecolor='white', edgecolor='none')
     plt.close(fig)
